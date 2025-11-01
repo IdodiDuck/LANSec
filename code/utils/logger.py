@@ -56,10 +56,3 @@ def info(msg: str):
 
 def error(msg: str):
     logging.getLogger("LANSec").error(msg)
-
-# Testing - 
-if __name__ == "__main__":
-    log = setup_logger()
-    log.info("Logger initialized.")
-    log.info("Example INFO message.")
-    log.error("Example ERROR message.")
