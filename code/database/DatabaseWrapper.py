@@ -2,7 +2,7 @@ import sqlite3
 import os
 from typing import Any, Dict, Tuple, Optional
 
-from utils.Logger import info, error
+from utils.logger import info, error
 
 class DatabaseWrapper:
     def __init__(self, db_path: str = "Database/LANSecDB.db"):
