@@ -12,7 +12,7 @@ os.makedirs(LOGS_DIR, exist_ok=True)
 # Define log file path
 LOG_FILE = os.path.join(LOGS_DIR, "system.log")
 
-def setup_logger(name="LANSec", log_file=None, level=logging.INFO, to_console=True):
+def setup_logger(name="LanSec", log_file=None, level=logging.INFO, to_console=True):
     if log_file is None:
         log_file = LOG_FILE
 
@@ -52,7 +52,7 @@ def setup_logger(name="LANSec", log_file=None, level=logging.INFO, to_console=Tr
 
 # Loging Functions - 
 def info(msg: str):
-    logging.getLogger("LANSec").info(msg)
+    logging.getLogger("LanSec").info(msg)
 
 def error(msg: str):
-    logging.getLogger("LANSec").error(msg)
+    logging.getLogger("LanSec").error(msg)
