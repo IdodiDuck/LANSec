@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LanSec - Network Security Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 30px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, #3b82f6, #1e40af);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .alerts-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .alert-item {
+            padding: 20px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .alert-item:hover {
+            background: rgba(148, 163, 184, 0.05);
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .alert-severity {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .severity-high {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .severity-medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .severity-low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .alert-time {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .alert-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .alert-data {
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .alert-action {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .action-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .action-alert {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+
+        .action-block {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .action-disconnect {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .network-visual {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .network-node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #3b82f6;
+            border-radius: 50%;
+            animation: networkPulse 3s infinite ease-in-out;
+        }
+
+        .network-node.threat {
+            background: #ef4444;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .network-node.secure {
+            background: #22c55e;
+        }
+
+        @keyframes networkPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .network-connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+            transform-origin: left center;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+        }
+
+        .filter-tab.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+        }
+
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .refresh-dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">LS</div>
+                <div>
+                    <h1>LanSec</h1>
+                    <p style="color: #94a3b8; font-size: 0.875rem;">Network Security Monitor</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>System Active</span>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="main-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #22c55e;">847</div>
+                        <div class="stat-label">Monitored Devices</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #ef4444;">23</div>
+                        <div class="stat-label">Active Threats</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #f59e0b;">156</div>
+                        <div class="stat-label">Blocked IPs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #3b82f6;">99.8%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+
+                <div class="network-visual">
+                    <div class="network-node" style="top: 50%; left: 50%;"></div>
+                    <div class="network-node secure" style="top: 20%; left: 30%;"></div>
+                    <div class="network-node secure" style="top: 80%; left: 25%;"></div>
+                    <div class="network-node threat" style="top: 30%; left: 75%;"></div>
+                    <div class="network-node secure" style="top: 70%; left: 80%;"></div>
+                    <div class="network-node secure" style="top: 15%; left: 65%;"></div>
+                    
+                    <div class="network-connection" style="top: 50%; left: 50%; width: 200px; transform: rotate(45deg);"></div>
+                    <div class="network-connection" style="top: 35%; left: 40%; width: 150px; transform: rotate(-30deg);"></div>
+                    <div class="network-connection" style="top: 65%; left: 35%; width: 180px; transform: rotate(60deg);"></div>
+                </div>
+            </div>
+
+            <div class="alerts-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Recent Alerts</h2>
+                    <div class="auto-refresh">
+                        <div class="refresh-dot"></div>
+                        <span>Auto-refresh</span>
+                    </div>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active">All</button>
+                    <button class="filter-tab">High</button>
+                    <button class="filter-tab">Medium</button>
+                    <button class="filter-tab">Low</button>
+                </div>
+
+                <div id="alerts-container">
+                    <div class="alert-item">
+                        <div class="alert-header">
+                            <div class="alert-severity severity-high">High</div>
+                            <div class="alert-time">2 min ago</div>
+                        </div>
+                        <div class="alert-name">DDoS Attack Detected</div>
+                        <div class="alert-data">Source: 203.45.67.89 → Target: 192.168.1.15<br>Rate: 15,000 req/sec</div>
+                        <div class="alert-action">
+                            <div class="action-icon action-block">🛡️</div>
+                            <span>IP blocked and traffic filtered</span>
+                        </div>
+                    </div>
+
+                    <div class="alert-item">
+                        <div class="alert-header">
+                            <div class="alert-severity severity-medium">Medium</div>
+                            <div class="alert-time">5 min ago</div>
+                        </div>
+                        <div class="alert-name">Suspicious Port Scan</div>
+                        <div class="alert-data">Source: 198.51.100.42<br>Ports: 22, 23, 80, 443, 8080</div>
+                        <div class="alert-action">
+                            <div class="action-icon action-alert">⚠️</div>
+                            <span>Alert sent to administrator</span>
+                        </div>
+                    </div>
+
+                    <div class="alert-item">
+                        <div class="alert-header">
+                            <div class="alert-severity severity-high">High</div>
+                            <div class="alert-time">8 min ago</div>
+                        </div>
+                        <div class="alert-name">Malware Communication</div>
+                        <div class="alert-data">Host: DESKTOP-ABC123 (192.168.1.45)<br>C&C Server: 185.220.100.240</div>
+                        <div class="alert-action">
+                            <div class="action-icon action-disconnect">🔌</div>
+                            <span>Device isolated from network</span>
+                        </div>
+                    </div>
+
+                    <div class="alert-item">
+                        <div class="alert-header">
+                            <div class="alert-severity severity-medium">Medium</div>
+                            <div class="alert-time">12 min ago</div>
+                        </div>
+                        <div class="alert-name">Brute Force Login Attempt</div>
+                        <div class="alert-data">Target: SSH server (192.168.1.10:22)<br>Source: 91.234.56.78, Failed attempts: 127</div>
+                        <div class="alert-action">
+                            <div class="action-icon action-block">🛡️</div>
+                            <span>IP blacklisted for 24 hours</span>
+                        </div>
+                    </div>
+
+                    <div class="alert-item">
+                        <div class="alert-header">
+                            <div class="alert-severity severity-low">Low</div>
+                            <div class="alert-time">15 min ago</div>
+                        </div>
+                        <div class="alert-name">Unusual Traffic Pattern</div>
+                        <div class="alert-data">Device: 192.168.1.87<br>Traffic spike: +340% above baseline</div>
+                        <div class="alert-action">
+                            <div class="action-icon action-alert">⚠️</div>
+                            <span>Monitoring increased for 2 hours</span>
+                        </div>
+                    </div>
+
+                    <div class="alert-item">
+                        <div class="alert-header">
+                            <div class="alert-severity severity-high">High</div>
+                            <div class="alert-time">18 min ago</div>
+                        </div>
+                        <div class="alert-name">Data Exfiltration Attempt</div>
+                        <div class="alert-data">Source: 192.168.1.34 → External: files.uploadsite.com<br>Size: 2.3GB encrypted data</div>
+                        <div class="alert-action">
+                            <div class="action-icon action-disconnect">🔌</div>
+                            <span>Connection terminated, user notified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate real-time updates
+        function updateStats() {
+            const stats = document.querySelectorAll('.stat-value');
+            stats.forEach(stat => {
+                if (stat.textContent.includes('%')) return;
+                
+                const current = parseInt(stat.textContent);
+                const variation = Math.floor(Math.random() * 10) - 5;
+                const newValue = Math.max(0, current + variation);
+                stat.textContent = newValue;
+            });
+        }
+
+        function addRandomAlert() {
+            const threats = [
+                {
+                    severity: 'high',
+                    name: 'SQL Injection Attempt',
+                    data: 'Target: web-server-01 (192.168.1.50)<br>Payload: UNION SELECT * FROM users',
+                    action: 'Request blocked by WAF'
+                },
+                {
+                    severity: 'medium',
+                    name: 'Suspicious DNS Query',
+                    data: 'Host: 192.168.1.23<br>Query: malicious-domain.ru',
+                    action: 'DNS request blocked'
+                },
+                {
+                    severity: 'low',
+                    name: 'VPN Connection Detected',
+                    data: 'Device: 192.168.1.78<br>VPN Exit: Netherlands',
+                    action: 'Logged for compliance review'
+                }
+            ];
+
+            const threat = threats[Math.floor(Math.random() * threats.length)];
+            const container = document.getElementById('alerts-container');
+            
+            const alertElement = document.createElement('div');
+            alertElement.className = 'alert-item';
+            alertElement.style.opacity = '0';
+            alertElement.innerHTML = `
+                <div class="alert-header">
+                    <div class="alert-severity severity-${threat.severity}">${threat.severity.toUpperCase()}</div>
+                    <div class="alert-time">Just now</div>
+                </div>
+                <div class="alert-name">${threat.name}</div>
+                <div class="alert-data">${threat.data}</div>
+                <div class="alert-action">
+                    <div class="action-icon action-block">🛡️</div>
+                    <span>${threat.action}</span>
+                </div>
+            `;
+            
+            container.insertBefore(alertElement, container.firstChild);
+            
+            // Animate in
+            setTimeout(() => {
+                alertElement.style.opacity = '1';
+                alertElement.style.transition = 'opacity 0.5s ease';
+            }, 100);
+            
+            // Remove old alerts to prevent overflow
+            if (container.children.length > 8) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        // Filter functionality
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelector('.filter-tab.active').classList.remove('active');
+                tab.classList.add('active');
+                
+                const filter = tab.textContent.toLowerCase();
+                const alerts = document.querySelectorAll('.alert-item');
+                
+                alerts.forEach(alert => {
+                    const severity = alert.querySelector('.alert-severity').textContent.toLowerCase();
+                    if (filter === 'all' || severity === filter) {
+                        alert.style.display = 'block';
+                    } else {
+                        alert.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Update time stamps
+        function updateTimeStamps() {
+            const timeElements = document.querySelectorAll('.alert-time');
+            timeElements.forEach((el, index) => {
+                if (el.textContent === 'Just now') {
+                    el.textContent = '1 min ago';
+                } else {
+                    const match = el.textContent.match(/(\d+) min ago/);
+                    if (match) {
+                        const mins = parseInt(match[1]) + 1;
+                        el.textContent = `${mins} min ago`;
+                    }
+                }
+            });
+        }
+
+        // Start simulations
+        setInterval(updateStats, 30000); // Update stats every 30 seconds
+        setInterval(addRandomAlert, 45000); // Add new alert every 45 seconds
+        setInterval(updateTimeStamps, 60000); // Update timestamps every minute
+    </script>
+</body>
+</html>
