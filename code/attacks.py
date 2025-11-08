@@ -3,7 +3,7 @@ from colorama import Fore, init as color_init
 color_init(autoreset=True)
 print("Attacks Module Loaded")
 
-from detect import randomized_mac, syn_scan, dir_traversal, arp_spoof
+from detect import randomized_mac, syn_scan, dir_traversal, arp_spoof, syn_flood
 
 
 # TD: make this enum ?
@@ -29,5 +29,6 @@ attacks = [
     Attack("Randomized MAC Address", NORMAL, randomized_mac.inspect),
     Attack("TCP SYN Scan", SUSPICIOUS, syn_scan.inspect),
     Attack("Directory Traversal Attack", DANGEROUS, dir_traversal.inspect),
-    Attack("ARP Spoofing Attack", CRITICAL, arp_spoof.inspect)
+    Attack("ARP Spoofing Attack", CRITICAL, arp_spoof.inspect),
+    Attack("SYN Flood Attack", CRITICAL, syn_flood.inspect)
 ]
