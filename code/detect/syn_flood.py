@@ -117,10 +117,11 @@ if __name__ == "__main__":
     color_init(autoreset=True)
 
     try:
-        system('cls')  # Windows-friendly clear
+        system('cls')
+        system("clear")
 
     except:
         pass
 
-    # Flages: SYN set and ACK not set
+    # Flags: SYN set and ACK not set
     sniff(prn=inspect, store=0, filter="tcp and (tcp[13] & 2 != 0) and (tcp[13] & 16 == 0)")

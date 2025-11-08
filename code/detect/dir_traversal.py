@@ -12,8 +12,7 @@ SENSITIVE_TARGETS = ["/etc/passwd", "/etc/shadow", "/etc/hosts",
     "boot.ini", "windows/win.ini", "c:\\boot.ini",
     "web.config", "wp-config.php"]
 
-# Support Methods - 
-
+# Support Functions - 
 def multi_url_unquote(s: str, max_iters: int = 5) -> str:
     """
     Performs repeated URL-decoding (handles double/triple-encoded payloads)

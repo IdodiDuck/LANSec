@@ -8,7 +8,7 @@ print("TCP SYN Scan Detection Module Loaded")
 
 RELEVANCE = 30 # seconds - half a minute
 THRESHHOLD = 100 # number of ports
-# If more than THRESHHOLD ports are scanned in RELEVANCE seconds, !ALERT!
+# If more than THRESHHOLD ports are scanned in RELEVANCE seconds - ALERT!
 
 class PortPkt:
     def __init__(self, pkt: Packet):
@@ -23,6 +23,7 @@ class PortPkt:
     def __eq__(self, other):
         if not isinstance(other, PortPkt):
             return False
+        
         return self.port == other.port
 
 
@@ -35,12 +36,17 @@ class PortList:
     def add_port(self, port_pkt: PortPkt):
         if port_pkt.ip_src != self._ip_src or port_pkt.ip_dst != self._ip_dst:
             return False
+        
         self.ports = [p for p in self.ports if p.is_relevant()]
+
         if port_pkt in self.ports:
             return True
+        
         self.ports.append(port_pkt)
+
         if len(self.ports) > THRESHHOLD:
             raise Exception(f"[ALERT] Possible TCP SYN scan detected from {self._ip_src} to {self._ip_dst} \n{len(self.ports)} ports initiated in less than {RELEVANCE} seconds")
+        
         return True
 
     def __repr__(self):
@@ -71,5 +77,5 @@ if __name__ == "__main__":
     system('clear')
     print("Starting TCP SYN scan Detection...")
 
-    # Flages: SYN set and ACK not set
+    # Flags: SYN set and ACK not set
     sniff(prn=inspect, store=0, filter="tcp and (tcp[13] & 2 != 0) and (tcp[13] & 16 == 0)")
