@@ -1,7 +1,6 @@
 # Live Detection of an TCP SYN Scan
 from scapy.all import *
 from time import time
-import general
 
 print("TCP SYN Scan Detection Module Loaded")
 
@@ -60,7 +59,6 @@ def inspect(pkt):
     if pkt.haslayer(IP) and pkt.haslayer(TCP):
         flags = pkt[TCP].flags
         if flags & 0x02 and not (flags & 0x10):
-            general.log(port_lists)
             port_pkt = PortPkt(pkt)
             try:
                 if not any(pl.add_port(port_pkt) for pl in port_lists):

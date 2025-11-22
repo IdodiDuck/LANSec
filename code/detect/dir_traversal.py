@@ -140,7 +140,7 @@ def inspect(pkt):
                 if is_valid(payload_body):
                     return None
                 
-                alert = (f"[ALERT] Possible Directory Traversal detected!\n"
+                alert = (f"[!] Possible Directory Traversal detected!\n"
                          f"src_ip: {pkt[IP].src}, dst_ip: {pkt[IP].dst}, "
                          f"src_port: {pkt[TCP].sport}, dst_port: {pkt[TCP].dport}\n"
                          f"payload_body: {payload_body}\n")
