@@ -3,16 +3,16 @@ logger = get_logger()
 
 import attacks
 from scapy.all import sniff
-from os import system
+import os
 import time
+import platform
 
 def clear_screen():
-    try:
-        system("clear")
-        system("cls")
+    os.system("cls" if platform.system() == "Windows" else "clear")
 
-    except:
-        pass
+def packet_handler(pkt, searched_attacks):
+    for attack in searched_attacks:
+        attack.inspect(pkt)
 
 def main():
 
@@ -28,11 +28,7 @@ def main():
     clear_screen()
     print("LanSec - Local Area Network Security\n" + "-"*36)
 
-    def snf(pkt):
-        for attack in searched_attacks:
-            attack.inspect(pkt)
-
-    sniff(prn=snf, store=0)
+    sniff(prn=lambda pkt: packet_handler(pkt, searched_attacks), store=0)
 
 if __name__ == "__main__":
     main()
