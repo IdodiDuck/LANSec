@@ -1,4 +1,4 @@
-from utils.normalizer import HTTPNormalizer
+from utils.http_normalizer import HTTPNormalizer
 from urllib.parse import unquote
 import re
 import posixpath
