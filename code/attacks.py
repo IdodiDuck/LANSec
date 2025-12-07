@@ -9,7 +9,8 @@ from detect import (
     arp_spoof,
     syn_flood,
     ssh_bruteforce,
-    tcp_connection_scan
+    tcp_connection_scan,
+    udp_flood
 )
 
 NORMAL = "NORMAL"
@@ -47,6 +48,7 @@ def load_attacks(logger):
         Attack("Directory Traversal", DANGEROUS, dir_traversal.inspect, logger),
         Attack("ARP Spoofing", CRITICAL, arp_spoof.inspect, logger),
         Attack("SYN Flood", CRITICAL, syn_flood.inspect, logger),
+        Attack("UDP Flood", CRITICAL, udp_flood.inspect, logger),
         Attack("Brute Force SSH", SUSPICIOUS, ssh_bruteforce.inspect, logger),
         Attack("TCP Connection Scan", SUSPICIOUS, tcp_connection_scan.inspect, logger)
     ]
