@@ -3,8 +3,6 @@ logger = get_logger()
 
 import attacks
 from scapy.all import sniff
-import time
-
 
 def packet_handler(pkt, searched_attacks):
     for attack in searched_attacks:
