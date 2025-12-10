@@ -9,7 +9,8 @@ from detect import (
     arp_spoof,
     syn_flood,
     ssh_bruteforce,
-    tcp_connection_scan
+    tcp_connection_scan,
+    xss
 )
 
 NORMAL = "NORMAL"
@@ -26,18 +27,33 @@ class Attack:
         self.logger = logger
     
     def inspect(self, pkt):
-        if (data := self._inspect(pkt)):
-            date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        result = self._inspect(pkt)
+        
+        if not result: # No detection
+            return
 
-            print(
-                f"{Fore.RED}{date}: {self.severity}: "
-                f"A possible {self.name} was detected!\n{Fore.RESET}{data}\n"
-            )
+        src, dst, details = result   # details = string, not tuple
 
-            if self.logger:
-                self.logger.info(
-                    f"{date}: {self.severity}: A possible {self.name} was detected!\n{data}\n"
-                )
+        date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+        # Construct a readable data to be logged
+        attack_data = (
+            f"\n{'='*70}\n"
+            f"[{date}]  SEVERITY: {self.severity}\n"
+            f"ATTACK TYPE: {self.name}\n"
+            f"SOURCE:      {src}\n"
+            f"DESTINATION: {dst}\n"
+            f"{'-'*70}\n"
+            f"{details}\n"
+            f"{'='*70}\n"
+        )
+
+        print(Fore.RED + attack_data + Fore.RESET)
+
+        # Log a clean, plain-text version
+        if self.logger:
+            self.logger.info(attack_data)
+
 
 
 def load_attacks(logger):
@@ -45,6 +61,7 @@ def load_attacks(logger):
         Attack("Randomized MAC Address", NORMAL, randomized_mac.inspect, logger),
         Attack("TCP SYN Scan", SUSPICIOUS, syn_scan.inspect, logger),
         Attack("Directory Traversal", DANGEROUS, dir_traversal.inspect, logger),
+        Attack("XSS", CRITICAL, xss.inspect, logger),
         Attack("ARP Spoofing", CRITICAL, arp_spoof.inspect, logger),
         Attack("SYN Flood", CRITICAL, syn_flood.inspect, logger),
         Attack("Brute Force SSH", SUSPICIOUS, ssh_bruteforce.inspect, logger),
