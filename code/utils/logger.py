@@ -13,7 +13,7 @@ LOG_FILE = os.path.join(LOGS_DIR, "system.log")
 _initialized = False
 _logger = None
 
-def setup_logger(name="LanSec", log_file=None, level=logging.INFO, to_console=True):
+def setup_logger(name="LanSec", log_file=None, level=logging.INFO, to_console=False):
     global _initialized, _logger
 
     if _initialized:
