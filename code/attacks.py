@@ -8,6 +8,7 @@ from detect import (
     dir_traversal,
     arp_spoof,
     syn_flood,
+    ping_sweep,
     ssh_bruteforce,
     tcp_connection_scan
 )
@@ -46,6 +47,7 @@ def load_attacks(logger):
         Attack("TCP SYN Scan", SUSPICIOUS, syn_scan.inspect, logger),
         Attack("Directory Traversal", DANGEROUS, dir_traversal.inspect, logger),
         Attack("ARP Spoofing", CRITICAL, arp_spoof.inspect, logger),
+        Attack("Ping Sweep", SUSPICIOUS, ping_sweep.inspect, logger),
         Attack("SYN Flood", CRITICAL, syn_flood.inspect, logger),
         Attack("Brute Force SSH", SUSPICIOUS, ssh_bruteforce.inspect, logger),
         Attack("TCP Connection Scan", SUSPICIOUS, tcp_connection_scan.inspect, logger)
