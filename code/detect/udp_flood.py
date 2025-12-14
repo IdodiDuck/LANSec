@@ -1,6 +1,6 @@
 from scapy.all import *
-from rate_limiter import SlidingWindowCounter, RateAlert
-from base_detector import BaseDetector
+from .rate_limiter import SlidingWindowCounter, RateAlert
+from .base_detector import BaseDetector
 import time
 from collections import deque
 
