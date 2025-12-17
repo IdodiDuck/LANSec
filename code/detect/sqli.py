@@ -7,7 +7,7 @@ STATIC_EXTENSIONS = (
     ".svg", ".woff", ".woff2", ".ttf", ".ico"
 )
 
-SQLI_PATTERNS = [
+BASIC_SQLI_PATTERNS = [
     r"(\%27)|(\')|(\-\-)|(\%23)|(#)",  # SQL meta-characters
     r"((\%3D)|(=))[^\n]*((\%27)|(\')|(\-\-)|(\%3B)|(;))",  # SQL operators
     r"\b(OR|AND)\b.+\=",  # Logical operators
@@ -18,6 +18,18 @@ SQLI_PATTERNS = [
     r"DELETE\s+FROM\s+",  # Basic DELETE statement
     r"DROP\s+TABLE\s+",  # Basic DROP TABLE statement
 ]
+
+ADVANCED_SQLI_PATTERNS = [
+    r"sleep\(\s*\d+\s*\)", # Blind SQLi: SLEEP function
+    r"benchmark\(\s*\d+.*\)", # Blind SQLi: Benchmark function (MySQL)
+    r"information_schema\.", # Accessing schema tables
+    r"concat\(", # Attempt to concatenate for injection
+    r"version\(\)", # Database version probing
+    r"if\s*\(.+\).+then", # Conditional SQLi (MSSQL)
+    r"union\s+select\s+.*--", # UNION SELECT with comment
+]
+
+SQLI_PATTERNS = BASIC_SQLI_PATTERNS + ADVANCED_SQLI_PATTERNS
 
 def is_valid(payload) -> bool:
     for pattern in SQLI_PATTERNS:
