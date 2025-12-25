@@ -29,7 +29,50 @@ ADVANCED_SQLI_PATTERNS = [
     r"union\s+select\s+.*--", # UNION SELECT with comment
 ]
 
-SQLI_PATTERNS = BASIC_SQLI_PATTERNS + ADVANCED_SQLI_PATTERNS
+"""
+Explanation: Thinking oppositely,
+analyzing server responses for sql error msgs
+that may indicate SQLi attempts
+"""
+ALL_SQL_ERRORS = [
+    # --- MySQL / MariaDB ---
+    r"you have an error in your sql syntax",
+    r"check the manual that corresponds to your mysql server version",
+    r"near '.+' at line \d+",
+    r"mysql_fetch_(array|assoc|row)",
+    r"warning:\s*mysql_",
+
+    # --- PostgreSQL ---
+    r"error:\s*syntax error at or near",
+    r"line \d+:\s*",
+    r"sqlstate:\s*42601",
+    r"relation \".+\" does not exist",
+    r"operator does not exist:",
+
+    # --- Microsoft SQL Server ---
+    r"incorrect syntax near",
+    r"unclosed quotation mark after the character string",
+    r"(microsoft ole db provider for sql server|odbc sql server driver)",
+    r"invalid (object|column) name",
+
+    # --- Oracle ---
+    r"ora-\d{5}:",
+
+    # --- SQLite ---
+    r"sqlite_error",
+    r"near \".+\": syntax error",
+    r"unrecognized token:",
+    r"incomplete input",
+    r"no such column:",
+
+    # --- Generic / Driver / Framework ---
+    r"sqlstate\[[0-9a-z]{5}\]",
+    r"(pdoexception|jdbc exception)",
+    r"fatal error:\s*uncaught exception",
+    r"supplied argument is not a valid (mysql|pgsql|mysqli)",
+]
+
+SQLI_PATTERNS = BASIC_SQLI_PATTERNS + ADVANCED_SQLI_PATTERNS + ALL_SQL_ERRORS
 
 def is_valid(payload) -> bool:
     for pattern in SQLI_PATTERNS:
