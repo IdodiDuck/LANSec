@@ -13,10 +13,8 @@ XSS_PATTERNS = [
     (re.compile(r"alert\s*\(", re.IGNORECASE), "alert() usage"),
 ]
 
-
 def detect_xss(pkt):
-    # Must have TCP payload
-    if not pkt.haslayer(Raw):
+    if not pkt.haslayer(TCP):
         return None
 
     req = HTTPNormalizer.normalize(pkt)
@@ -25,26 +23,29 @@ def detect_xss(pkt):
 
     findings = []
 
-    # Locations to scan
+    # GET / POST / URL / BODY
     parts = {
-        "path": req.path,
-        "query": getattr(req, "query_string", ""),
-        "body": req.body,
+        "path": req.path or "",
+        "query": getattr(req, "query_string", "") or "",
+        "body": req.body or "",
     }
 
     for part_name, text in parts.items():
         if not text:
             continue
 
-        decoded = unquote(text).lower()
+        # Decode twice (bypass tricks)
+        decoded = unquote(unquote(text)).lower()
 
         for regex, label in XSS_PATTERNS:
             if regex.search(decoded):
-                findings.append((part_name, label, decoded[:200]))
+                findings.append(
+                    (part_name, label, decoded[:200])
+                )
 
     if findings:
         return {
-            "type": "XSS",
+            "type": "XSS Payload Detected",
             "src": req.src,
             "dst": req.dst,
             "method": req.method,
@@ -56,28 +57,27 @@ def detect_xss(pkt):
 
 
 def inspect(pkt):
-
+    
     result = detect_xss(pkt)
+    
     if not result:
         return None
 
-    # Build readable description for logger
-    desc_lines = [f"HTTP {result['method']} {result['path']}"]
+    desc_lines = [f"[XSS] HTTP {result['method']} {result['path']}"]
 
     for location, label, snippet in result["findings"]:
         desc_lines.append(
             f"{location}: {label} | '{snippet}'"
         )
 
-    desc = "\n".join(desc_lines)
-
     return (
         result["src"],
         result["dst"],
-        desc
+        "\n".join(desc_lines)
     )
+
 
 if __name__ == "__main__":
     print("Starting XSS Detection...\n")
 
-    sniff(prn=inspect,store=0,filter="tcp port 80 or tcp port 8080 or tcp port 8000 or tcp port 12345")
+    sniff(prn=inspect, store=0, filter="tcp port 80 or tcp port 8080 or tcp port 8000 or tcp port 12345")
