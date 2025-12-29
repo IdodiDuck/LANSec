@@ -41,7 +41,7 @@ class Attack:
             f"\n{'='*70}\n"
             f"[{date}]  SEVERITY: {self.severity}\n"
             f"ATTACK TYPE: {self.name}\n"
-            f"SOURCE:      {src}\n"
+            f"SOURCE: {src}\n"
             f"DESTINATION: {dst}\n"
             f"{'-'*70}\n"
             f"{details}\n"
