@@ -1,3 +1,4 @@
+import iptbls
 from utils.logger import get_logger
 logger = get_logger()
 
@@ -14,6 +15,11 @@ def main():
     print("LanSec - Local Area Network Security\n" + "-"*36)
 
     sniff(prn=lambda pkt: packet_handler(pkt, searched_attacks), store=0)
+
+    print("iptbls status:")
+    iptbls.status()
+    iptbls.clear()
+    print("Exiting LanSec")
 
 
 if __name__ == "__main__":
