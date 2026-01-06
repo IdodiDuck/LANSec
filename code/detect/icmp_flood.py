@@ -1,0 +1,43 @@
+from scapy.all import *
+from .rate_limiter import SlidingWindowCounter, RateAlert
+from .base_detector import BaseDetector
+
+print("ICMP Flood Module Loaded")
+
+# Sliding window for ICMP packets per source IP
+counter = SlidingWindowCounter(window_seconds=10, max_items=1000)
+# Alert when ICMP rate exceeds threshold
+alerter = RateAlert(threshold=50, alert_cooldown=10)
+detector = BaseDetector(counter, alerter, name="ICMP Flood")
+
+def is_icmp(pkt):
+    return pkt.haslayer(ICMP) and pkt[ICMP].type == 8  # Echo Request
+
+def inspect(pkt):
+    if not pkt.haslayer(IP) or not is_icmp(pkt):
+        return None
+
+    src_ip = pkt[IP].src
+    count = detector.count_event(src_ip)
+
+    if count:
+        return (
+            f"[ALERT] Possible ICMP Flood Detected!\n"
+            f"src_ip: {src_ip}\n"
+            f"icmp_count: {count}\n")
+
+if __name__ == "__main__":
+    from colorama import init as color_init
+    from os import system
+
+    color_init(autoreset=True)
+
+    try:
+        system("cls")
+        system("clear")
+
+    except:
+        pass
+
+    print("Starting ICMP Flood Detection...")
+    sniff(prn=inspect, store=0, filter="icmp")
