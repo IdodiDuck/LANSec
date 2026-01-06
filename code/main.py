@@ -1,4 +1,4 @@
-import iptbls
+import prevent.iptbls as iptbls
 from utils.logger import get_logger
 from scapy.all import sniff
 import attacks

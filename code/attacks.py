@@ -1,6 +1,6 @@
 import time
 from colorama import Fore, init as color_init
-import iptbls
+import prevent.iptbls as iptbls
 color_init(autoreset=True)
 
 from detect import (
