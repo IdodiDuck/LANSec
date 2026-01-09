@@ -1,5 +1,6 @@
 import time
 from colorama import Fore, init as color_init
+import prevent.iptbls as iptbls
 color_init(autoreset=True)
 
 from detect import (
@@ -59,6 +60,15 @@ class Attack:
         if self.logger:
             self.logger.info(attack_data)
 
+            # commented out for debugging convenience
+            # if self.severity in [CRITICAL, DANGEROUS]: # HIGHLY_SUSPICIOUS
+            if (ip := pkt["IP"].src if pkt.haslayer("IP") else pkt["ARP"].psrc if pkt.haslayer("ARP") else None):
+                iptbls.block(ip)
+
+            if self.logger:
+                self.logger.info(
+                    f"{date}: {self.severity}: A possible {self.name} was detected!\n{data}\n"
+                )
 
 
 def load_attacks(logger):
