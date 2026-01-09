@@ -1,29 +1,31 @@
 import time
 from colorama import Fore, init as color_init
 import prevent.iptbls as iptbls
+
 color_init(autoreset=True)
 
+# Attacks modules
 from detect import (
     randomized_mac,
     syn_scan,
+    tcp_connection_scan,
     dir_traversal,
+    xss,
+    sqli,
     arp_spoof,
     syn_flood,
     udp_flood,
     icmp_flood,
     ssh_bruteforce,
-    tcp_connection_scan,
     arp_sweep,
     ping_sweep,
-    udp_flood,
-    xss
 )
 
+# Attacks Severities - 
 NORMAL = "NORMAL"
 SUSPICIOUS = "SUSPICIOUS"
 DANGEROUS = "DANGEROUS"
 CRITICAL = "CRITICAL"
-
 
 class Attack:
     def __init__(self, name, severity, inspect, logger):
@@ -67,9 +69,8 @@ class Attack:
 
             if self.logger:
                 self.logger.info(
-                    f"{date}: {self.severity}: A possible {self.name} was detected!\n{data}\n"
+                    f"{date}: {self.severity}: A possible {self.name} was detected!\n{attack_data}\n"
                 )
-
 
 def load_attacks(logger):
     attacks = [
@@ -77,6 +78,7 @@ def load_attacks(logger):
         Attack("TCP SYN Scan", SUSPICIOUS, syn_scan.inspect, logger),
         Attack("Directory Traversal", DANGEROUS, dir_traversal.inspect, logger),
         Attack("XSS", CRITICAL, xss.inspect, logger),
+        Attack("SQLi", CRITICAL, sqli.inspect, logger),
         Attack("ARP Spoofing", CRITICAL, arp_spoof.inspect, logger),
         Attack("Ping Sweep", SUSPICIOUS, ping_sweep.inspect, logger),
         Attack("ARP Sweep", SUSPICIOUS, arp_sweep.inspect, logger),
