@@ -17,14 +17,6 @@ sessions = {}
 # scans[src][dst] = list of (port, timestamp)
 scans = defaultdict(lambda: defaultdict(list))
 
-def is_syn(tcp):
-    return (tcp.flags & 0x02) != 0   # SYN bit
-
-def is_fin_or_rst(tcp):
-    return (tcp.flags & 0x01) or (tcp.flags & 0x04)
-
-def has_payload(tcp):
-    return len(tcp.payload) > 0
 
 def inspect(pkt):
     if not pkt.haslayer(IP) or not pkt.haslayer(TCP):
@@ -35,18 +27,21 @@ def inspect(pkt):
     key = (ip.src, ip.dst, tcp.sport, tcp.dport)
     now = time()
 
+    is_syn = tcp.flags & 0x02 != 0   # SYN bit
     # Track SYN (connection start)
-    if is_syn(tcp):
+    if is_syn:
         sessions[key] = {"start": now, "payload": False}
         return None
 
+    has_payload = len(tcp.payload) > 0
     # Mark this session as real traffic if it has data
-    if key in sessions and has_payload(tcp):
+    if key in sessions and has_payload:
         sessions[key]["payload"] = True
         return None
 
+    is_fin_or_rst = (tcp.flags & 0x01) or (tcp.flags & 0x04)
     # Connection ending (FIN or RST)
-    if key in sessions and is_fin_or_rst(tcp):
+    if key in sessions and is_fin_or_rst:
         sess = sessions[key]
         duration = now - sess["start"]
         del sessions[key]
