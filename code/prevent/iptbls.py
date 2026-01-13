@@ -1,23 +1,14 @@
-# Module name is negotiable: iptbls (iptables)
-# iptbls.block("<IP_ADDRESS>")
 import subprocess
-import os
 from utils.logger import get_logger
 
 logger = get_logger()
 CHAIN = "LanSec"
 blocked_ips = set()
 
-def _require_root():
-    if os.geteuid() != 0:
-        raise PermissionError("iptables requires root privileges")
-
 def _run(cmd):
     subprocess.run(cmd, check=True)
 
 def init():
-    _require_root()
-
     # Initialize a dedicated iptables chain for dynamic IP blocking
     _run(["iptables", "-N", CHAIN])
     _run(["iptables", "-C", "INPUT", "-j", CHAIN])
@@ -26,8 +17,6 @@ def init():
 def block(ip):
     if ip in blocked_ips:
         return
-
-    _require_root()
 
     try:
         _run(["iptables", "-A", CHAIN, "-s", ip, "-j", "DROP"])
