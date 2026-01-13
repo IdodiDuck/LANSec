@@ -1,6 +1,6 @@
 # POC: Live Detection of an ARP spoofing attack
 from scapy.all import *
-import general
+from utils import logger
 
 print("ARP Spoofing Detection Module Loaded")
 
@@ -16,7 +16,7 @@ def inspect(pkt):
                 return f"[!] Possible ARP Spoofing detected! IP: {ip} is now mapped to MAC: {mac} (was {arp_table[ip]})"
         else:
             arp_table[ip] = mac
-            general.log(f"[INFO] New mapping: IP {ip} is mapped to MAC {mac}")
+            logger.info(f"[INFO] New mapping: IP {ip} is mapped to MAC {mac}")
 
 
 if __name__ == "__main__":
