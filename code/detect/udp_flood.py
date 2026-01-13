@@ -39,13 +39,10 @@ detector = BaseDetector(counter, alerter, name="UDP Flood Dynamic")
 
 dynamic_monitor = DynamicRateMonitor(window_seconds=120)
 
-def is_udp(pkt):
-    return pkt.haslayer(UDP)
-
 def inspect(pkt):
     now = time.time()
 
-    if not pkt.haslayer(IP) or not is_udp(pkt):
+    if not pkt.haslayer(IP) or not pkt.haslayer(UDP):
         return None
 
     src_ip = pkt[IP].src
