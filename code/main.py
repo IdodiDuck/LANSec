@@ -16,15 +16,7 @@ def main():
         exit(1)
 
     logger.info("Starting LanSec...")
-
-    try:
-        iptbls.init()
-    except PermissionError as e:
-        logger.error(str(e))
-        return
-
     searched_attacks = attacks.load_attacks(logger)
-
     print("LanSec - Local Area Network Security\n" + "-" * 36)
 
     try:
