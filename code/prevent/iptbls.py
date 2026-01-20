@@ -6,14 +6,17 @@ def block(ip):
     blocked_ips.add(ip)
     print(f"Blocked {ip}")
 
-def unblock(ip):
+def _unblock(ip):
     subprocess.run(["iptables", "-D", "INPUT", "-s", ip, "-j", "DROP"])
+
+def unblock(ip):
+    _unblock(ip)
     blocked_ips.discard(ip)
     print(f"Unblocked {ip}")
 
 def clear():
-    for ip in blocked_ips:
-        blocked_ips.discard(ip)
+    for ip in blocked_ips: _unblock(ip)
+    blocked_ips.clear()
     print("All blocks cleared")
 
 def status():
