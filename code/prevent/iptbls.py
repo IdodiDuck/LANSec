@@ -1,4 +1,3 @@
-# prints should be done via logger
 import subprocess
 
 blocked_ips = set()
@@ -13,8 +12,8 @@ def unblock(ip):
     print(f"Unblocked {ip}")
 
 def clear():
-    for ip in blocked_ips: unblock(ip)
-    blocked_ips.clear()
+    for ip in blocked_ips:
+        blocked_ips.discard(ip)
     print("All blocks cleared")
 
 def status():
