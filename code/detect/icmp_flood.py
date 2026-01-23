@@ -4,9 +4,9 @@ from .base_detector import BaseDetector
 
 print("ICMP Flood Module Loaded")
 
-# Sliding window for ICMP packets per source IP
-counter = SlidingWindowCounter(window_seconds=10, max_items=1000)
-# Alert when ICMP rate exceeds threshold
+# Sliding window for ICMP packets per destination IP
+counter = SlidingWindowCounter(window_seconds=10, max_items=2000)
+# Alert when ICMP rate to a specific target exceeds threshold
 alerter = RateAlert(threshold=50, alert_cooldown=10)
 detector = BaseDetector(counter, alerter, name="ICMP Flood")
 
@@ -18,12 +18,15 @@ def inspect(pkt):
         return None
 
     src_ip = pkt[IP].src
-    count = detector.count_event(src_ip)
+    dst_ip = pkt[IP].dst
+    
+    count = detector.count_event(dst_ip)
 
     if count:
         return (
             f"[ALERT] Possible ICMP Flood Detected!\n"
             f"src_ip: {src_ip}\n"
+            f"dst_ip: {dst_ip}\n"
             f"icmp_count: {count}\n")
 
 if __name__ == "__main__":
@@ -35,7 +38,7 @@ if __name__ == "__main__":
     try:
         system("cls")
         system("clear")
-
+        
     except:
         pass
 
