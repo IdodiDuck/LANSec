@@ -98,7 +98,6 @@ def inspect(pkt):
 
     if not is_valid(path) or not is_valid(req.body):
         return (
-            f"[ALERT] Possible SQL Injection Detected\n"
             f"src: {req.src} -> dst: {req.dst}\n"
             f"method: {req.method}\n"
             f"path: {req.path}\n"

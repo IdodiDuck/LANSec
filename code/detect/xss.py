@@ -45,7 +45,6 @@ def detect_xss(pkt):
 
     if findings:
         return {
-            "type": "XSS Payload Detected",
             "src": req.src,
             "dst": req.dst,
             "method": req.method,
@@ -63,17 +62,15 @@ def inspect(pkt):
     if not result:
         return None
 
-    desc_lines = [f"[XSS] HTTP {result['method']} {result['path']}"]
-
-    for location, label, snippet in result["findings"]:
-        desc_lines.append(
-            f"{location}: {label} | '{snippet}'"
-        )
+    findings_list = [f"{loc} ({label})" for loc, label, snip in result["findings"]]
+    findings_summary = " | ".join(findings_list)
 
     return (
-        result["src"],
-        result["dst"],
-        "\n".join(desc_lines)
+        f"src_ip: {result["src"]}\n"
+        f"target: {result["dst"]}\n"
+        f"method: {result["method"]}\n"
+        f"path: {result["path"]}\n"
+        f"findings: {findings_summary}\n"
     )
 
 

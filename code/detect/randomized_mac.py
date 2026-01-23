@@ -14,10 +14,10 @@ def inspect(pkt):
         if is_randomized(src_mac):
             if pkt.haslayer(IP):
                 src_ip = pkt[IP].src
-                return f"[ALERT] Randomized MAC Detected: {src_mac} from IP: {src_ip}"
+                return f"{src_mac} from IP: {src_ip}"
             
             else:
-                return f"[ALERT] Randomized MAC Detected: {src_mac} from IP: Unknown"
+                return f"{src_mac} from IP: Unknown"
 
 
 if __name__ == "__main__":
