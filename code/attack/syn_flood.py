@@ -34,7 +34,7 @@ def syn_flood(ip, port, threads, packets, delay):
 def get_int(prompt, default, minimum=1):
     while True:
         try:
-            user_input = input(f"{prompt} default({default}): ").strip()
+            user_input = input(f"{prompt} (default {default}): ").strip()
             if not user_input:
                 return default
             
@@ -49,7 +49,7 @@ def get_int(prompt, default, minimum=1):
 def get_float(prompt, default, minimum=0.0):
     while True:
         try:
-            user_input = input(f"{prompt} default({default}): ").strip()
+            user_input = input(f"{prompt} (default {default}): ").strip()
             if not user_input:
                 return default
             
@@ -65,10 +65,10 @@ def get_float(prompt, default, minimum=0.0):
 if __name__ == "__main__":
     try:
         target_ip = input("Target IP: (default 192.168.1.1): ").strip() or "192.168.1.1"
-        target_port = get_int("Target Port: ", default=80)
-        num_threads = get_int("Threads: ", default=10)
-        num_packets = get_int("Packets per thread: ", default=100)
-        delay = get_float("Delay: ", default=0.0)
+        target_port = get_int("Target Port:", default=80)
+        num_threads = get_int("Threads:", default=10)
+        num_packets = get_int("Packets per thread:", default=100)
+        delay = get_float("Delay:", default=0.0)
 
         syn_flood(target_ip, target_port, num_threads, num_packets, delay)
 
