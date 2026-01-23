@@ -1,16 +1,16 @@
 import os
 import prevent.iptbls as iptbls
-from utils.logger import get_logger
+import utils.logger as logger
 from scapy.all import sniff
 import attacks
-
-logger = get_logger()
 
 def packet_handler(pkt, searched_attacks):
     for attack in searched_attacks:
         attack.inspect(pkt)
 
 def main():
+    logger.setup_logger(to_console=False)
+
     if os.geteuid() != 0:
         logger.error("Project requires root privileges")
         exit(1)
