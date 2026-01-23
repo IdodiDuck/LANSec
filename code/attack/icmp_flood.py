@@ -31,7 +31,7 @@ def icmp_flood(ip, threads, packets):
 def get_int(prompt, default, minimum=1):
     while True:
         try:
-            user_input = input(f"{prompt} default({default}): ").strip()
+            user_input = input(f"{prompt} (default {default}): ").strip()
             if not user_input:
                 return default
             
@@ -46,8 +46,8 @@ def get_int(prompt, default, minimum=1):
 if __name__ == "__main__":
     try:
         target_ip = input("Target IP: (default 192.168.1.1): ").strip() or "192.168.1.1"
-        num_threads = get_int("Threads: (default 10): ", default=10)
-        num_packets = get_int("Packets per thread: ", default=100)
+        num_threads = get_int("Threads:", default=10)
+        num_packets = get_int("Packets per thread:", default=100)
 
         icmp_flood(target_ip, num_threads, num_packets)
 
