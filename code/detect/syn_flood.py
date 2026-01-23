@@ -14,16 +14,21 @@ def is_syn(pkt):
 
 
 def inspect(pkt):
-    if not pkt.haslayer(IP) or not is_syn(pkt):
+    if not pkt.haslayer(IP) or not pkt.haslayer(TCP) or not is_syn(pkt):
         return None
 
     src = pkt[IP].src
-    count = detector.count_event(src)
+    dst = pkt[IP].dst
+    port = pkt[TCP].dport
+    
+    target_key = f"{dst}:{port}"
+    count = detector.count_event(target_key)
 
     if count:
         return (
             f"[ALERT] SYN Flood Detected!\n"
             f"src_ip: {src}\n"
+            f"target: {target_key}\n"
             f"syn_count: {count}\n"
         )
 
@@ -35,9 +40,7 @@ if __name__ == "__main__":
     try:
         system('cls')
         system("clear")
-
     except:
         pass
 
-    # Flags: SYN set and ACK not set
     sniff(prn=inspect, store=0, filter="tcp and (tcp[13] & 2 != 0) and (tcp[13] & 16 == 0)")
