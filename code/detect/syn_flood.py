@@ -26,7 +26,6 @@ def inspect(pkt):
 
     if count:
         return (
-            f"[ALERT] SYN Flood Detected!\n"
             f"src_ip: {src}\n"
             f"target: {target_key}\n"
             f"syn_count: {count}\n"

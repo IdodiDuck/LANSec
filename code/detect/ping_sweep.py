@@ -58,7 +58,6 @@ def inspect(pkt):
     # Threshold condition
     if unique_count >= TARGET_THRESHOLD:
         return (
-            "[ALERT] Ping Sweep Detected!\n"
             f"attacker: {src}\n"
             f"unique_targets: {unique_count}\n"
             f"targets: {list(unique_targets[src]['targets'])[:15]}\n"

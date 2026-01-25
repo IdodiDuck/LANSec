@@ -13,10 +13,10 @@ def inspect(pkt):
 
         if ip in arp_table:
             if arp_table[ip] != mac:
-                return f"[!] Possible ARP Spoofing detected! IP: {ip} is now mapped to MAC: {mac} (was {arp_table[ip]})"
+                return f"IP: {ip} is now mapped to MAC: {mac} (was {arp_table[ip]})"
         else:
             arp_table[ip] = mac
-            logger.info(f"[INFO] New mapping: IP {ip} is mapped to MAC {mac}")
+            logger.info(f"New mapping: IP {ip} is mapped to MAC {mac}")
 
 
 if __name__ == "__main__":

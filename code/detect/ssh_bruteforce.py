@@ -54,7 +54,6 @@ def inspect(pkt):
 
     if count:
         return (
-            f"[ALERT] SSH Brute Force Detected!\n"
             f"src_ip: {src} -> {dst}\n"
             f"attempts_in_window: {count}\n"
             f"window_seconds: {WINDOW_SECONDS}\n"

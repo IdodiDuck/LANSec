@@ -24,7 +24,6 @@ def inspect(pkt):
 
     if count:
         return (
-            f"[ALERT] Possible ICMP Flood Detected!\n"
             f"src_ip: {src_ip}\n"
             f"dst_ip: {dst_ip}\n"
             f"icmp_count: {count}\n")

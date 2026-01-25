@@ -1,6 +1,7 @@
 import time
 from colorama import Fore, init as color_init
 import prevent.iptbls as iptbls
+from utils.logger import alert 
 
 color_init(autoreset=True)
 
@@ -36,16 +37,14 @@ class Attack:
         result = self._inspect(pkt)
         if not result: return
 
-        date = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        alert = f"{date}: {self.severity}: A possible {self.name} was detected!\n{result}\n"
-        print(Fore.RED + alert + Fore.RESET)
+        alert_msg = f"{self.severity}: A possible {self.name} was detected!\n{result}\n"
 
         # commented out for debugging convenience
         # if self.severity in [CRITICAL, DANGEROUS]:
         if (ip := pkt["IP"].src if pkt.haslayer("IP") else pkt["ARP"].psrc if pkt.haslayer("ARP") else None):
             iptbls.block(ip)
 
-        if self.logger: self.logger.info(alert)
+        if self.logger: alert(alert_msg)
 
 
 def load_attacks(logger):
