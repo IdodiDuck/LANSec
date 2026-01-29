@@ -1,15 +1,30 @@
 import os
-import prevent.iptbls as iptbls
-import utils.logger as logger
+import threading
+import time
 from scapy.all import sniff
+import utils.logger as logger
+from detect.anomaly_detector import AnomalyDetector
+from detect.data_aggregator import DataAggregator
 import attacks
 
+detector = AnomalyDetector(logger)
+aggregator = DataAggregator(detector)
+
+def anomaly_logic():
+    while True:
+        time.sleep(10)
+        aggregator.analyze_and_reset()
+
 def packet_handler(pkt, searched_attacks):
+    # Checking for attacks signatures/patterns
     for attack in searched_attacks:
         attack.inspect(pkt)
 
+    # Collecting statistis
+    aggregator.add_packet(pkt)
+
 def main():
-    logger.setup_logger(to_console=False)
+    logger.setup_logger(to_console=True)
 
     if os.geteuid() != 0:
         logger.error("Project requires root privileges")
@@ -17,19 +32,19 @@ def main():
 
     logger.info("Starting LanSec...")
     searched_attacks = attacks.load_attacks(logger)
-    print("LanSec - Local Area Network Security\n" + "-" * 36)
 
+    # Activating anomaly behavior detection statistics collection
+    timer_thread = threading.Thread(target=anomaly_logic, daemon=True)
+    timer_thread.start()
+
+    print("LanSec - Local Area Network Security\n" + "-" * 36)
+    
     try:
         sniff(prn=lambda pkt: packet_handler(pkt, searched_attacks), store=0)
     except KeyboardInterrupt:
         print("\nStopping LanSec...")
     finally:
-        iptbls.clear()
         logger.info("LanSec stopped cleanly")
 
-
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        logger.error(f"Unhandled exception: {e}")
+    main()
