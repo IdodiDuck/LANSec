@@ -16,7 +16,15 @@ class LanSecLogger(logging.Logger):
 
     def alert(self, msg, *args, **kwargs):
         print(f"{Fore.RED}{msg}{Style.RESET_ALL}")
-        self.log(ALERT_LEVEL_NUM, msg, *args, **kwargs)
+        
+        for handler in self.handlers:
+            if isinstance(handler, RotatingFileHandler):
+                record = self.makeRecord(
+                    self.name, ALERT_LEVEL_NUM, "(internal)", 0, 
+                    msg, args, kwargs.get('exc_info')
+                )
+                
+                handler.emit(record)
 
 logging.setLoggerClass(LanSecLogger)
 

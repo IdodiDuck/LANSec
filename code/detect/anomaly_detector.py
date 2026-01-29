@@ -1,4 +1,3 @@
-# detect/anomaly_detector.py
 import numpy as np
 from utils.address import Addr
 
