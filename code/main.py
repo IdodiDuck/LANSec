@@ -17,14 +17,14 @@ def anomaly_logic():
 
 def packet_handler(pkt, searched_attacks):
     # Checking for attacks signatures/patterns
-    for attack in searched_attacks:
-        attack.inspect(pkt)
+    #for attack in searched_attacks:
+    #    attack.inspect(pkt)
 
     # Collecting statistis
     aggregator.add_packet(pkt)
 
 def main():
-    logger.setup_logger(to_console=True)
+    logger.setup_logger(to_console=False)
 
     if os.geteuid() != 0:
         logger.error("Project requires root privileges")
@@ -40,7 +40,7 @@ def main():
     print("LanSec - Local Area Network Security\n" + "-" * 36)
     
     try:
-        sniff(prn=lambda pkt: packet_handler(pkt, searched_attacks), store=0)
+        sniff(prn=lambda pkt: packet_handler(pkt, searched_attacks), store=0, iface="lo")
     except KeyboardInterrupt:
         print("\nStopping LanSec...")
     finally:
