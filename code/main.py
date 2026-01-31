@@ -40,7 +40,7 @@ def main():
     print("LanSec - Local Area Network Security\n" + "-" * 36)
     
     try:
-        sniff(prn=lambda pkt: packet_handler(pkt, searched_attacks), store=0, iface="lo")
+        sniff(prn=lambda pkt: packet_handler(pkt, searched_attacks), store=0)
     except KeyboardInterrupt:
         print("\nStopping LanSec...")
     finally:
