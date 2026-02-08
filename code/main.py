@@ -2,7 +2,10 @@ import os
 import threading
 import time
 from scapy.all import sniff
+
+from web.app import start_ui
 import utils.logger as logger
+from prevent.iptbls import clear as clear_blocked_ips
 from detect.anomaly_detector import AnomalyDetector
 from detect.data_aggregator import DataAggregator
 import attacks
@@ -17,8 +20,8 @@ def anomaly_logic():
 
 def packet_handler(pkt, searched_attacks):
     # Checking for attacks signatures/patterns
-    #for attack in searched_attacks:
-    #    attack.inspect(pkt)
+    for attack in searched_attacks:
+        attack.inspect(pkt)
 
     # Collecting statistis
     aggregator.add_packet(pkt)
@@ -30,6 +33,7 @@ def main():
         logger.error("Project requires root privileges")
         exit(1)
 
+    start_ui()
     logger.info("Starting LanSec...")
     searched_attacks = attacks.load_attacks(logger)
 
@@ -45,6 +49,7 @@ def main():
         print("\nStopping LanSec...")
     finally:
         logger.info("LanSec stopped cleanly")
-
+        clear_blocked_ips()
+        
 if __name__ == "__main__":
     main()
