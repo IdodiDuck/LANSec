@@ -14,16 +14,19 @@ class LanSecLogger(logging.Logger):
     def __init__(self, name, level=logging.NOTSET):
         super().__init__(name, level)
 
-    def alert(self, msg, *args, **kwargs):
-        print(f"{Fore.RED}{msg}{Style.RESET_ALL}")
+    def alert(self, msg, data=None, *args, **kwargs):
+        full_message = msg
+        if data:
+            full_message = f"{msg}\nDetails: {data}"
+        
+        print(f"{Fore.RED}{full_message}{Style.RESET_ALL}")
         
         for handler in self.handlers:
             if isinstance(handler, RotatingFileHandler):
                 record = self.makeRecord(
                     self.name, ALERT_LEVEL_NUM, "(internal)", 0, 
-                    msg, args, kwargs.get('exc_info')
+                    full_message, args, kwargs.get('exc_info')
                 )
-                
                 handler.emit(record)
 
 logging.setLoggerClass(LanSecLogger)
@@ -77,8 +80,8 @@ def get_logger():
 def info(msg):
     get_logger().info(msg)
 
-def alert(msg):
-    get_logger().alert(msg)
+def alert(msg, data=None):
+    get_logger().alert(msg, data=data)
 
 def error(msg):
     get_logger().error(msg)
