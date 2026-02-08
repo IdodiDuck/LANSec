@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LanSec - Network Security Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">LS</div>
+                <div>
+                    <h1 style="font-size: 1.25rem; font-weight: 700;">LanSec Monitor</h1>
+                    <p style="font-size: 0.875rem; color: #94a3b8;">Local Network Surveillance</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span style="font-size: 0.875rem; font-weight: 500;">System Live</span>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="main-content">
+                <div class="alerts-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Recent Security Alerts</h2>
+                        <div class="auto-refresh">
+                            <div class="refresh-dot"></div>
+                            <span>Live Update</span>
+                        </div>
+                    </div>
+                    
+                    <div id="alerts-container">
+                        <div class="alert-item">
+                            <p style="text-align: center; color: #94a3b8;">Scanning for threats...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="sidebar">
+                <div class="stat-card" style="margin-bottom: 20px;">
+                    <div class="stat-label">Blocked Addresses</div>
+                    <div class="stat-value" id="blocked-count">{{ blocked_ips|length }}</div>
+                </div>
+                
+                <div class="alerts-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title" style="font-size: 0.875rem;">Active Blocks</h2>
+                    </div>
+                    <div id="blocked-ips-list" style="padding: 10px;">
+                        {% for ip in blocked_ips %}
+                        <div class="alert-item" style="padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-family: monospace; font-size: 0.875rem;">{{ ip }}</span>
+                            <button onclick="unblockIP('{{ ip }}')" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">Unblock</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        function unblockIP(ip) {
+            fetch(`/unblock/${ip}`)
+                .then(r => r.json())
+                .then(data => { if(data.status === 'success') location.reload(); });
+        }
+    </script>
+</body>
+</html>
