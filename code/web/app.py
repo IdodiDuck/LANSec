@@ -1,15 +1,18 @@
 import logging
 import threading
 from flask import Flask, render_template, jsonify
-from wsgiref.simple_server import make_server
 
 from prevent import iptbls
-from utils.log_parser import get_parsed_alerts
+from utils.logger import recent_alerts
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
+
+ERROR_CODE = 500
+PORT = 5000
+LOCAL_HOST = '0.0.0.0'
 
 @app.route('/')
 def home():
@@ -17,21 +20,28 @@ def home():
     return render_template('index.html', blocked_ips=blocked)
 
 @app.route('/api/alerts')
-def get_alerts_api():
-    alerts = get_parsed_alerts('../logs/system.log')
-    return jsonify({"alerts": alerts})
+def get_alerts():
+    return jsonify({
+        "alerts": recent_alerts,
+        "blocked_ips": list(set(iptbls.blocked_ips))
+    })
 
 @app.route('/unblock/<ip>')
-def unblock_ip(ip):
-    iptbls.unblock(ip)
-    return jsonify({"status": "success"})
-
-def run_server():
+def unblock_route(ip):
     try:
-        httpd = make_server('0.0.0.0', 5000, app)
-        httpd.serve_forever()
+        if hasattr(iptbls, 'unblock_ip'):
+            iptbls.unblock_ip(ip)
+        else:
+            iptbls.unblock(ip) 
+            
+        return jsonify({"status": "success"})
+    
     except Exception as e:
-        print(f"Web UI Error: {e}")
+        print(f"Error during unblock: {e}")
+        return jsonify({"status": "error", "message": str(e)}), ERROR_CODE
+    
+def run_server():
+    app.run(host=LOCAL_HOST, port=PORT, debug=False, use_reloader=False, threaded=True)
 
 def start_ui():
     ui_thread = threading.Thread(target=run_server, daemon=True)

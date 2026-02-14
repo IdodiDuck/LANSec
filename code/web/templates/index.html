@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LanSec - Network Security Monitor</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -13,7 +14,7 @@
                 <div class="logo-icon">LS</div>
                 <div>
                     <h1 style="font-size: 1.25rem; font-weight: 700;">LanSec Monitor</h1>
-                    <p style="font-size: 0.875rem; color: #94a3b8;">Local Network Surveillance</p>
+                    <p style="font-size: 0.875rem; color: #94a3b8;">Local Network Security</p>
                 </div>
             </div>
             <div class="status-indicator">
@@ -51,11 +52,11 @@
                     <div class="panel-header">
                         <h2 class="panel-title" style="font-size: 0.875rem;">Active Blocks</h2>
                     </div>
-                    <div id="blocked-ips-list" style="padding: 10px;">
+                    <div id="blocked-ips-list" style="padding: 10px; position: relative; z-index: 10;">
                         {% for ip in blocked_ips %}
-                        <div class="alert-item" style="padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-family: monospace; font-size: 0.875rem;">{{ ip }}</span>
-                            <button onclick="unblockIP('{{ ip }}')" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem;">Unblock</button>
+                        <div class="alert-item" style="padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);">
+                            <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.875rem; color: #fca5a5;">{{ ip }}</span>
+                            <button onclick="window.unblockIP('{{ ip }}')" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold;">Unblock</button>
                         </div>
                         {% endfor %}
                     </div>
@@ -65,12 +66,5 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-    <script>
-        function unblockIP(ip) {
-            fetch(`/unblock/${ip}`)
-                .then(r => r.json())
-                .then(data => { if(data.status === 'success') location.reload(); });
-        }
-    </script>
 </body>
 </html>
