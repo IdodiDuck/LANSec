@@ -23,11 +23,14 @@ class AnomalyDetector:
         if total_packets >= self.min_packets_to_alert:
             ratios = val / (baseline + 1.0)
             
-            if any(r > self.threshold for r in ratios):
-                self.logger.alert(
-                    f"Anomaly detected from {src_addr} to {dst_addr}\n"
-                    f"Average: {baseline.round(1)}\n"
-                    f"New Data: {val}"
+            self.logger.alert(
+                    severity="SUSPICIOUS",
+                    attack_type="Network Anomaly",
+                    details=(
+                        f"Flow: {src_addr} -> {dst_addr} | "
+                        f"Baseline: {baseline.round(1).tolist()} | "
+                        f"Current Burst: {val.tolist()}"
+                    )
                 )
 
         self.stats[src_addr][dst_addr] = 0.95 * baseline + 0.05 * val

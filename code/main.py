@@ -27,15 +27,17 @@ def packet_handler(pkt, searched_attacks):
     aggregator.add_packet(pkt)
 
 def main():
-    logger.setup_logger(to_console=False)
+    log_obj = logger.setup_logger(to_console=True)
+    
+    logger.recent_alerts.clear()
 
     if os.geteuid() != 0:
         logger.error("Project requires root privileges")
         exit(1)
 
     start_ui()
-    logger.info("Starting LanSec...")
-    searched_attacks = attacks.load_attacks(logger)
+    time.sleep(1)
+    searched_attacks = attacks.load_attacks(log_obj)
 
     # Activating anomaly behavior detection statistics collection
     timer_thread = threading.Thread(target=anomaly_logic, daemon=True)
@@ -47,9 +49,12 @@ def main():
         sniff(prn=lambda pkt: packet_handler(pkt, searched_attacks), store=0)
     except KeyboardInterrupt:
         print("\nStopping LanSec...")
+    except Exception as e:
+        print(f"\nFatal Error: {e}")
     finally:
         logger.info("LanSec stopped cleanly")
+        logger.recent_alerts.clear()
         clear_blocked_ips()
-        
+
 if __name__ == "__main__":
     main()
