@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
-from scapy.all import *
+from scapy.all import IP, TCP, sr, send
+# sr sends packets and receives answers, returning a couple of packet lists: answered and unanswered
 
 
 def check(ip, port, print_closed: bool):

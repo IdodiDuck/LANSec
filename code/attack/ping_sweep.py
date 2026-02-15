@@ -1,4 +1,4 @@
-from scapy.all import *
+from scapy.all import IP, ICMP, sr
 from concurrent.futures import ThreadPoolExecutor
 
 output = []

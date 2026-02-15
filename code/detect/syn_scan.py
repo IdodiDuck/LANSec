@@ -1,5 +1,5 @@
 # Live Detection of an TCP SYN Scan
-from scapy.all import *
+from scapy.all import TCP, IP, Packet, sniff
 from time import time
 
 print("TCP SYN Scan Detection Module Loaded")

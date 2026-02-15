@@ -1,4 +1,4 @@
-from scapy.all import *
+from scapy.all import Ether, IP, sniff
 
 print("Randomized MAC Detection Module Loaded")
 

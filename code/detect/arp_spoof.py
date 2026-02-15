@@ -1,5 +1,5 @@
 # POC: Live Detection of an ARP spoofing attack
-from scapy.all import *
+from scapy.all import ARP, sniff
 from utils import logger
 
 print("ARP Spoofing Detection Module Loaded")

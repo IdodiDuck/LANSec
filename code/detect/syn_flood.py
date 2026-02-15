@@ -1,4 +1,4 @@
-from scapy.all import *
+from scapy.all import TCP, IP, sniff
 from .rate_limiter import SlidingWindowCounter, RateAlert
 from .base_detector import BaseDetector
 

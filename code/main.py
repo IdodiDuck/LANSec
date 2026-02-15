@@ -1,5 +1,5 @@
 import os
-import threading
+from threading import Thread
 import time
 from scapy.all import sniff
 import utils.logger as logger
@@ -34,7 +34,7 @@ def main():
     searched_attacks = attacks.load_attacks(logger)
 
     # Activating anomaly behavior detection statistics collection
-    timer_thread = threading.Thread(target=anomaly_logic, daemon=True)
+    timer_thread = Thread(target=anomaly_logic, daemon=True)
     timer_thread.start()
 
     print("LanSec - Local Area Network Security\n" + "-" * 36)
@@ -50,7 +50,8 @@ def main():
 
     try:
         for snf_fltr, attacks_list in attacks_by_fltr.items():
-            sniff(filter=snf_fltr, prn=lambda pkt: packet_handler(pkt, attacks_list), store=0)
+            Thread(target=lambda fltr=snf_fltr, attacks=attacks_list:
+                   sniff(filter=fltr, prn=lambda pkt: packet_handler(pkt, attacks), store=0)).start()
     except KeyboardInterrupt:
         print("\nStopping LanSec...")
     finally:

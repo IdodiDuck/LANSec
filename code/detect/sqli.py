@@ -1,5 +1,5 @@
 from utils.http_normalizer import HTTPNormalizer
-from scapy.all import *
+from scapy.all import sniff
 import re
 
 STATIC_EXTENSIONS = (

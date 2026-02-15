@@ -1,4 +1,4 @@
-from scapy.all import *
+from scapy.all import TCP, sniff
 import re
 from urllib.parse import unquote
 from utils.http_normalizer import HTTPNormalizer

@@ -1,7 +1,5 @@
-from os import system
-from scapy.all import *
+from scapy.all import ARP, send
 from time import sleep
-from threading import Thread
 
 
 attacker_mac = input("Enter Attacker MAC addr: ") or "CC:47:40:F6:21:E6"

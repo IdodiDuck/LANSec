@@ -88,6 +88,7 @@ if __name__ == "__main__":
     from colorama import Fore, init as color_init
     color_init(autoreset=True)
     from os import system
+    from scapy.all import sniff
 
     system('clear')
     print("Starting Directory Traversal Detection...\n\n")

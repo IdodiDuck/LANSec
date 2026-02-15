@@ -1,4 +1,4 @@
-from scapy.all import *
+from scapy.all import ARP, Ether, srp
 from concurrent.futures import ThreadPoolExecutor
 
 def arp_ping(ip):
