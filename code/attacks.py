@@ -1,7 +1,6 @@
 import time
 from colorama import Fore, init as color_init
 import prevent.iptbls as iptbls
-from utils.logger import alert 
 
 color_init(autoreset=True)
 
@@ -35,16 +34,36 @@ class Attack:
         self._snf_filter = snf_fltr
     def inspect(self, pkt):
         result = self._inspect(pkt)
-        if not result: return
+        
+        if not result: 
+            return
 
-        alert_msg = f"{self.severity}: A possible {self.name} was detected!\n{result}\n"
+        technical_info = ""
+        if isinstance(result, (tuple, list)):
+            technical_info = " | ".join(map(str, result))
 
-        # commented out for debugging convenience
-        # if self.severity in [CRITICAL, DANGEROUS]:
-        if (ip := pkt["IP"].src if pkt.haslayer("IP") else pkt["ARP"].psrc if pkt.haslayer("ARP") else None):
-            iptbls.block(ip)
+        elif isinstance(result, dict):
+            technical_info = ", ".join([f"{k}: {v}" for k, v in result.items()])
 
-        if self.logger: alert(alert_msg)
+        else:
+            technical_info = str(result)
+
+        attacker_ip = None
+        if pkt.haslayer("IP"):
+            attacker_ip = pkt["IP"].src
+        elif pkt.haslayer("ARP"):
+            attacker_ip = pkt["ARP"].psrc
+        
+        if attacker_ip:
+            iptbls.block(attacker_ip)
+            technical_info += f" | Status: IP {attacker_ip} Blocked"
+
+        if self.logger: 
+            self.logger.alert(
+                severity=self.severity, 
+                attack_type=self.name, 
+                details=technical_info
+            )
 
 
 # 12345 for debugging

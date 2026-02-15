@@ -4,7 +4,7 @@ class Addr:
         self.mac = mac
 
     def __repr__(self):
-        return f"Address (ip={self.ip}, mac={self.mac})"
+        return self.ip if self.ip else self.mac
 
     def to_hex(self) -> str:
         try:

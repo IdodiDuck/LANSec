@@ -2,8 +2,13 @@ import logging
 from logging.handlers import RotatingFileHandler
 from colorama import Fore, Style, init as color_init
 import os
+from datetime import datetime
 
 color_init(autoreset=True)
+
+# Alerts to be presented in UI
+recent_alerts = []
+MAX_RECENT_ALERTS = 50
 
 # Adding Logging Level for representing ALERT logs
 ALERT_LEVEL_NUM = 25
@@ -14,16 +19,48 @@ class LanSecLogger(logging.Logger):
     def __init__(self, name, level=logging.NOTSET):
         super().__init__(name, level)
 
-    def alert(self, msg, *args, **kwargs):
-        print(f"{Fore.RED}{msg}{Style.RESET_ALL}")
+    def _get_severity_color(self, severity):
+        colors = {
+            "NORMAL": Fore.GREEN,
+            "SUSPICIOUS": Fore.YELLOW,
+            "DANGEROUS": Fore.LIGHTRED_EX,
+            "CRITICAL": Fore.RED
+        }
         
+        return colors.get(severity, Fore.WHITE)
+
+    def _push_to_ui(self, alert_obj):
+        recent_alerts.insert(0, alert_obj)
+        if len(recent_alerts) > MAX_RECENT_ALERTS:
+            recent_alerts.pop()
+
+    def alert(self, severity, attack_type, details=None, *args, **kwargs):
+        severity = severity.upper()
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        details = details if details else "No additional data"
+
+        alert_obj = {
+            "time": current_time,
+            "severity": severity,
+            "attack_type": attack_type,
+            "details": details
+        }
+
+        self._push_to_ui(alert_obj)
+
+        color = self._get_severity_color(severity)
+        print(f"{color}[ALERT] {severity} | {attack_type} | {details}{Style.RESET_ALL}")
+
+        full_message = f"{severity} • {attack_type} • {details}"
+        self._log_to_file(full_message, args, kwargs)
+
+    def _log_to_file(self, message, args, kwargs):
         for handler in self.handlers:
             if isinstance(handler, RotatingFileHandler):
                 record = self.makeRecord(
                     self.name, ALERT_LEVEL_NUM, "(internal)", 0, 
-                    msg, args, kwargs.get('exc_info')
+                    message, args, kwargs.get('exc_info')
                 )
-                
                 handler.emit(record)
 
 logging.setLoggerClass(LanSecLogger)
@@ -77,8 +114,8 @@ def get_logger():
 def info(msg):
     get_logger().info(msg)
 
-def alert(msg):
-    get_logger().alert(msg)
+def alert(severity, attack_type, details=None):
+    get_logger().alert(severity, attack_type, details)
 
 def error(msg):
     get_logger().error(msg)
