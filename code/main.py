@@ -39,8 +39,18 @@ def main():
 
     print("LanSec - Local Area Network Security\n" + "-" * 36)
     
+
+    # !!!!! NOTICE !!!!!
+    # the attacks are devided by their sniffing filter
+    attacks_by_fltr = {}
+    for attack in searched_attacks:
+        if attack._snf_filter not in attacks_by_fltr:
+            attacks_by_fltr[attack._snf_filter] = []
+        attacks_by_fltr[attack._snf_filter].append(attack)
+
     try:
-        sniff(prn=lambda pkt: packet_handler(pkt, searched_attacks), store=0)
+        for snf_fltr, attacks_list in attacks_by_fltr.items():
+            sniff(filter=snf_fltr, prn=lambda pkt: packet_handler(pkt, attacks_list), store=0)
     except KeyboardInterrupt:
         print("\nStopping LanSec...")
     finally:
