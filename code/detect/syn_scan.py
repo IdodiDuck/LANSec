@@ -44,7 +44,7 @@ class PortList:
         self.ports.append(port_pkt)
 
         if len(self.ports) > THRESHHOLD:
-            raise Exception(f"detected from {self._ip_src} to {self._ip_dst}\n{len(self.ports)} ports initiated in less than {RELEVANCE} seconds")
+            raise Exception(f"{len(self.ports)} ports initiated in less than {RELEVANCE} seconds")
         
         return True
 

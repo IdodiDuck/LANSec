@@ -66,10 +66,7 @@ def inspect(pkt):
 
     # Rate-Based Detection (20 events in 10s)
     if detector.alerter.should_alert(src, count):
-        return (
-            f"attacker: {src}\n"
-            f"events_in_window: {count}\n"
-        )
+        return f"Attacker: {src} | High rate detected: {count} ARP requests in window"
 
     # Unique Target Detection (5+ different IPs)
     uniq_count = len(unique_targets[src]["targets"])
@@ -83,12 +80,7 @@ def inspect(pkt):
 
         last_unique_alert[src] = now
 
-        return (
-            f"attacker: {src}\n"
-            f"unique_targets: {uniq_count}\n"
-            f"targets (partial): {list(unique_targets[src]['targets'])[:15]}\n"
-            f"events_in_window: {count}\n"
-        )
+        return f"Network Sweep: {uniq_count} unique ARP targets probed"
 
 
 if __name__ == "__main__":

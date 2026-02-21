@@ -23,10 +23,7 @@ def inspect(pkt):
     count = detector.count_event(dst_ip)
 
     if count:
-        return (
-            f"src_ip: {src_ip}\n"
-            f"dst_ip: {dst_ip}\n"
-            f"icmp_count: {count}\n")
+        return (f"icmp_count: {count}\n")
 
 if __name__ == "__main__":
     from colorama import init as color_init

@@ -45,8 +45,6 @@ def detect_xss(pkt):
 
     if findings:
         return {
-            "src": req.src,
-            "dst": req.dst,
             "method": req.method,
             "path": req.path,
             "findings": findings

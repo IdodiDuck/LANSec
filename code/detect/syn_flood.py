@@ -25,11 +25,7 @@ def inspect(pkt):
     count = detector.count_event(target_key)
 
     if count:
-        return (
-            f"src_ip: {src}\n"
-            f"target: {target_key}\n"
-            f"syn_count: {count}\n"
-        )
+        return (f"syn_count: {count}\n")
 
 if __name__ == "__main__":
     from colorama import Fore, init as color_init

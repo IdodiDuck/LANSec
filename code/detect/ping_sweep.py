@@ -16,6 +16,7 @@ TARGET_THRESHOLD = 5
 last_cleanup = time.time()
 
 def clean_expired():
+    """Remove attackers inactive for too long"""
     global last_cleanup
     now = time.time()
 
@@ -57,12 +58,7 @@ def inspect(pkt):
 
     # Threshold condition
     if unique_count >= TARGET_THRESHOLD:
-        return (
-            f"attacker: {src}\n"
-            f"unique_targets: {unique_count}\n"
-            f"targets: {list(unique_targets[src]['targets'])[:15]}\n"
-            f"events_in_window: {count}\n"
-        )
+        return f"Ping Sweep: {unique_count} hosts scanned"
 
 if __name__ == "__main__":
     print("Starting Ping Sweep Detection...\n")

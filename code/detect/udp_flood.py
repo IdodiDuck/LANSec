@@ -84,7 +84,6 @@ def inspect(pkt):
             
             if strike_counts[src_ip] >= SUSTAIN_REQUIREMENT:                
                 detection = (
-                    f"src_ip: {src_ip} -> Destination: {dst_ip}\n"
                     f"rate: {count:.2f} pps\n"
                     f"threshold: {dynamic_threshold:.2f} pps\n"
                 )

@@ -69,17 +69,15 @@ def inspect(pkt):
         decoded = multi_url_unquote(http.path)
         normalized = normalize_path(decoded)
         return (
-            f"src={http.src} → dst={http.dst}\n"
-            f"path={http.path}\n"
-            f"decoded={decoded}\n"
-            f"normalized={normalized}"
+            f"path: {http.path}\n"
+            f"decoded: {decoded}\n"
+            f"normalized: {normalized}"
         )
 
     # Check body
     if http.body and not is_valid_path(http.body):
         return (
-            f"src={http.src} → dst={http.dst}\n"
-            f"body={http.body[:200]}"
+            f"body: {http.body[:200]}"
         )
 
     return None
