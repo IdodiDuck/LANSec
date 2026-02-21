@@ -3,6 +3,7 @@ from logging.handlers import RotatingFileHandler
 from colorama import Fore, Style, init as color_init
 import os
 from datetime import datetime
+from utils.alert import Alert
 
 color_init(autoreset=True)
 
@@ -35,23 +36,25 @@ class LanSecLogger(logging.Logger):
             recent_alerts.pop()
 
     def alert(self, severity, attack_type, details=None, *args, **kwargs):
+        src_ip = kwargs.get('src_ip', "")
+        dst_ip = kwargs.get('dst_ip', "")
         severity = severity.upper()
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         details = details if details else "No additional data"
 
-        alert_obj = {
-            "time": current_time,
-            "severity": severity,
-            "attack_type": attack_type,
-            "details": details
-        }
+        new_alert = Alert(
+            name=attack_type,
+            severity=severity,
+            details=details,
+            src_ip=src_ip,
+            dst_ip=dst_ip
+        )
 
-        self._push_to_ui(alert_obj)
+        self._push_to_ui(new_alert.to_dict())
 
         color = self._get_severity_color(severity)
-        print(f"{color}[ALERT] {severity} | {attack_type} | {details}{Style.RESET_ALL}")
+        print(f"{color}{new_alert}{Style.RESET_ALL}")
 
-        full_message = f"{severity} • {attack_type} • {details}"
+        full_message = f"{severity} • {attack_type} • {details} | Flow: {src_ip}->{dst_ip}"
         self._log_to_file(full_message, args, kwargs)
 
     def _log_to_file(self, message, args, kwargs):
@@ -114,8 +117,8 @@ def get_logger():
 def info(msg):
     get_logger().info(msg)
 
-def alert(severity, attack_type, details=None):
-    get_logger().alert(severity, attack_type, details)
+def alert(severity, attack_type, details=None, **kwargs):
+    get_logger().alert(severity, attack_type, details, **kwargs)
 
 def error(msg):
     get_logger().error(msg)

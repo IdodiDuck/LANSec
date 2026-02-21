@@ -48,12 +48,20 @@ class Attack:
         else:
             technical_info = str(result)
 
-        attacker_ip = None
+        attacker_ip = ""
+        target_ip = ""
+        attacker_mac = ""
+        target_mac = ""
+
         if pkt.haslayer("IP"):
             attacker_ip = pkt["IP"].src
+            target_ip = pkt["IP"].dst
         elif pkt.haslayer("ARP"):
             attacker_ip = pkt["ARP"].psrc
-        
+            target_ip = pkt["ARP"].pdst
+            attacker_mac = pkt["ARP"].hwsrc
+            target_mac = pkt["ARP"].hwdst
+
         if attacker_ip:
             iptbls.block(attacker_ip)
             technical_info += f" | Status: IP {attacker_ip} Blocked"
@@ -62,7 +70,11 @@ class Attack:
             self.logger.alert(
                 severity=self.severity, 
                 attack_type=self.name, 
-                details=technical_info
+                details=technical_info,
+                src_ip=attacker_ip,
+                dst_ip=target_ip,
+                src_mac=attacker_mac,
+                dst_mac=target_mac
             )
 
 
