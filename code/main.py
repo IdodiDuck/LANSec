@@ -71,6 +71,7 @@ def main():
         logger.info("LanSec stopped cleanly")
         logger.recent_alerts.clear()
         clear_blocked_ips()
+        os._exit(0)
 
 if __name__ == "__main__":
     main()
