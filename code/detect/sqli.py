@@ -100,7 +100,7 @@ def inspect(pkt):
         return (
             f"method: {req.method}\n"
             f"path: {req.path}\n"
-            f"body: {req.body}\n"
+            f"body: {req.body}"
         )
 
 

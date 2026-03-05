@@ -85,7 +85,7 @@ def inspect(pkt):
             if strike_counts[src_ip] >= SUSTAIN_REQUIREMENT:                
                 detection = (
                     f"rate: {count:.2f} pps\n"
-                    f"threshold: {dynamic_threshold:.2f} pps\n"
+                    f"threshold: {dynamic_threshold:.2f} pps"
                 )
 
                 # Reset strike count after alert to honor the cooldown

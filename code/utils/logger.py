@@ -2,7 +2,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from colorama import Fore, Style, init as color_init
 import os
-from datetime import datetime
+import time
 from utils.alert import Alert
 
 color_init(autoreset=True)
@@ -19,6 +19,8 @@ logging.addLevelName(ALERT_LEVEL_NUM, "ALERT")
 class LanSecLogger(logging.Logger):
     def __init__(self, name, level=logging.NOTSET):
         super().__init__(name, level)
+        self._last_alerts_times = {}
+        self.SUPPRESSION_TIME = 20 # Seconds
 
     def _get_severity_color(self, severity):
         colors = {
@@ -36,8 +38,21 @@ class LanSecLogger(logging.Logger):
             recent_alerts.pop()
 
     def alert(self, severity, attack_type, details=None, *args, **kwargs):
-        src_ip = kwargs.get('src_ip', "")
-        dst_ip = kwargs.get('dst_ip', "")
+        src_ip = kwargs.get('src_ip', "Unknown")
+        dst_ip = kwargs.get('dst_ip', "Unknown")
+
+        current_time = time.time()
+        alert_key = (src_ip, attack_type)
+
+        # Supression Mechanism - Avoiding duplicate detections spamming
+        if alert_key in self._last_alerts_times:
+            last_time = self._last_alerts_times[alert_key]
+
+            if current_time - last_time < self.SUPPRESSION_TIME:
+                return
+
+        self._last_alerts_times[alert_key] = current_time
+
         severity = severity.upper()
         details = details if details else "No additional data"
 
@@ -49,7 +64,12 @@ class LanSecLogger(logging.Logger):
             dst_ip=dst_ip
         )
 
-        self._push_to_ui(new_alert.to_dict())
+        alert_dict = new_alert.to_dict()
+
+        if 'attack_type' not in alert_dict:
+             alert_dict['attack_type'] = attack_type
+
+        self._push_to_ui(alert_dict)
 
         color = self._get_severity_color(severity)
         print(f"{color}{new_alert}{Style.RESET_ALL}")
