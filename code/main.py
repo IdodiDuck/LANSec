@@ -9,6 +9,7 @@ from prevent.iptbls import clear as clear_blocked_ips
 from detect.anomaly_detector import AnomalyDetector
 from detect.data_aggregator import DataAggregator
 import attacks
+from configuration.config import NET_INTERFACE
 
 detector = AnomalyDetector(logger)
 aggregator = DataAggregator(detector)
@@ -56,7 +57,7 @@ def main():
     try:
         for snf_fltr, attacks_list in attacks_by_fltr.items():
             Thread(target=lambda fltr=snf_fltr, attacks=attacks_list:
-                   sniff(filter=fltr, prn=lambda pkt: packet_handler(pkt, attacks), store=0)).start()
+                   sniff(filter=fltr, iface=NET_INTERFACE, prn=lambda pkt: packet_handler(pkt, attacks), store=0)).start()
         
         while True:
             os.system(input())
