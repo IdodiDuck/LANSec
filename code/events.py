@@ -25,13 +25,14 @@ SUSPICIOUS = "SUSPICIOUS"
 DANGEROUS = "DANGEROUS"
 CRITICAL = "CRITICAL"
 
-class Attack:
+class SecurityEvent:
     def __init__(self, name, severity, inspect, logger, snf_fltr=""):
         self.name = name
         self.severity = severity
         self._inspect = inspect
         self.logger = logger
         self._snf_filter = snf_fltr
+        
     def inspect(self, pkt):
         result = self._inspect(pkt)
         
@@ -82,18 +83,18 @@ class Attack:
 app_layer_fltr = "tcp port 80 or tcp port 8080 or tcp port 8000 or tcp port 12345"
 # SYN flag set
 tcp_syn_fltr = "tcp and (tcp[13] & 2 != 0)" 
-def load_attacks(logger):
+def load_monitored_events(logger):
     return [
-        # Attack("Randomized MAC Address", NORMAL, randomized_mac.inspect, logger, "ALL"),
-        Attack("XSS", SUSPICIOUS, xss.inspect, logger, snf_fltr=app_layer_fltr),
-        Attack("SQLi", SUSPICIOUS, sqli.inspect, logger, snf_fltr=app_layer_fltr),
-        Attack("Directory Traversal", SUSPICIOUS, dir_traversal.inspect, logger, snf_fltr=app_layer_fltr),
-        Attack("Brute Force SSH", SUSPICIOUS, ssh_bruteforce.inspect, logger, snf_fltr="tcp port 22"),
-        Attack("TCP SYN Scan", DANGEROUS, syn_scan.inspect, logger, snf_fltr=tcp_syn_fltr),
-        Attack("Ping Sweep", DANGEROUS, ping_sweep.inspect, logger, snf_fltr="icmp"),
-        Attack("ARP Sweep", DANGEROUS, arp_sweep.inspect, logger, snf_fltr="arp"),
-        Attack("SYN Flood", CRITICAL, syn_flood.inspect, logger, snf_fltr=tcp_syn_fltr),
-        Attack("ICMP Flood", CRITICAL, icmp_flood.inspect, logger, snf_fltr="icmp"),
-        # Attack("UDP Flood", CRITICAL, udp_flood.inspect, logger, snf_filter="udp"),
-        Attack("ARP Spoofing", CRITICAL, arp_spoof.inspect, logger, snf_fltr="arp")
+        # SecurityEvent("Randomized MAC Address", NORMAL, randomized_mac.inspect, logger, "ALL"),
+        SecurityEvent("XSS", SUSPICIOUS, xss.inspect, logger, snf_fltr=app_layer_fltr),
+        SecurityEvent("SQLi", SUSPICIOUS, sqli.inspect, logger, snf_fltr=app_layer_fltr),
+        SecurityEvent("Directory Traversal", SUSPICIOUS, dir_traversal.inspect, logger, snf_fltr=app_layer_fltr),
+        SecurityEvent("Brute Force SSH", SUSPICIOUS, ssh_bruteforce.inspect, logger, snf_fltr="tcp port 22"),
+        SecurityEvent("TCP SYN Scan", DANGEROUS, syn_scan.inspect, logger, snf_fltr=tcp_syn_fltr),
+        SecurityEvent("Ping Sweep", DANGEROUS, ping_sweep.inspect, logger, snf_fltr="icmp"),
+        SecurityEvent("ARP Sweep", DANGEROUS, arp_sweep.inspect, logger, snf_fltr="arp"),
+        SecurityEvent("SYN Flood", CRITICAL, syn_flood.inspect, logger, snf_fltr=tcp_syn_fltr),
+        SecurityEvent("ICMP Flood", CRITICAL, icmp_flood.inspect, logger, snf_fltr="icmp"),
+        SecurityEvent("UDP Flood", CRITICAL, udp_flood.inspect, logger, snf_fltr="udp"),
+        SecurityEvent("ARP Spoofing", CRITICAL, arp_spoof.inspect, logger, snf_fltr="arp")
     ]
