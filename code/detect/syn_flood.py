@@ -5,7 +5,7 @@ from .base_detector import BaseDetector
 print("SYN Flood Module Loaded")
 
 counter = SlidingWindowCounter(window_seconds=10, max_items=500)
-alerter = RateAlert(threshold=20, alert_cooldown=10)
+alerter = RateAlert(threshold=100, alert_cooldown=10)
 detector = BaseDetector(counter, alerter, name="SYN Flood")
 
 
