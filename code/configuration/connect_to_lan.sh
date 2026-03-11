@@ -21,6 +21,9 @@ sudo ifconfig $INTERFACE $NEW_IP netmask 255.255.255.0 up
 # Set the LANSec system as the Default Gateway
 sudo route add default gw $GATEWAY
 
+# Configure DNS
+echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf > /dev/null
+
 echo "-------------------------------------------"
 echo "[+] Done! Client is now reachable at $NEW_IP"
 echo "[+] All traffic is being routed through LANSec ($GATEWAY)"

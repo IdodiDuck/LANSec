@@ -52,6 +52,9 @@ echo "Configuring NAT on $EXT_IF..."
 sudo iptables -t nat -F
 sudo iptables -t nat -A POSTROUTING -o $EXT_IF -j MASQUERADE
 
+# Configure DNS
+echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf > /dev/null
+
 echo "-------------------------------------------"
 echo "IDPS LAN is ready!"
 echo "Internal Gateway (Protected): $INT_IP"
