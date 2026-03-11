@@ -1,5 +1,6 @@
 from scapy.all import TCP, sniff
 import re
+import html
 from urllib.parse import unquote
 from utils.http_normalizer import HTTPNormalizer
 
@@ -42,7 +43,7 @@ def detect_xss(pkt):
                 findings.append(
                     (part_name, label, decoded[:200])
                 )
-
+    
     if findings:
         return {
             "method": req.method,
@@ -61,14 +62,13 @@ def inspect(pkt):
         return None
 
     findings_list = [f"{loc} ({label})" for loc, label, snip in result["findings"]]
-    findings_summary = " | ".join(findings_list)
+    findings_summary = ", ".join(findings_list)
+    safe_summary = html.escape(findings_summary)
 
     return (
-        f"src_ip: {result["src"]}\n"
-        f"target: {result["dst"]}\n"
         f"method: {result["method"]}\n"
         f"path: {result["path"]}\n"
-        f"findings: {findings_summary}\n"
+        f"findings: {safe_summary}"
     )
 
 
