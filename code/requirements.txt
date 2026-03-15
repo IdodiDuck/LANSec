@@ -2,6 +2,9 @@
 scapy==2.5.0
 netifaces==0.11.0
 
+# --- Testing & Simulations ---
+paramiko==3.4.0
+
 # --- Web Interface & Backend ---
 Flask==3.0.0
 
@@ -10,3 +13,4 @@ numpy==1.26.0
 
 # --- System & Utilities ---
 psutil==5.9.5
+colorama==0.4.6
