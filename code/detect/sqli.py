@@ -74,43 +74,72 @@ ALL_SQL_ERRORS = [
 
 SQLI_PATTERNS = BASIC_SQLI_PATTERNS + ADVANCED_SQLI_PATTERNS + ALL_SQL_ERRORS
 
-def is_valid(payload) -> bool:
+def is_valid(payload: str) -> bool:
+    """
+    Validates the input string against a database of SQL injection signatures.
+
+    :param payload: The string content (URL path or HTTP body) to be inspected.
+    :return: False if a malicious SQL pattern is detected, True otherwise.
+    """
+    if not payload:
+        return True
+
+    # Iterating through all signature categories (Basic, Advanced, and Error-based)
     for pattern in SQLI_PATTERNS:
+        # re.IGNORECASE prevents evasion via mixed-case (e.g., 'sElEcT')
         if re.search(pattern, payload, re.IGNORECASE):
             return False
     return True
 
 
 def inspect(pkt):
+    """
+    The primary inspection hook for SQL injection detection. 
+    Performs Deep Packet Inspection (DPI) at the Application Layer.
+
+    :param pkt: The raw network packet captured by the sniffer.
+    :return: A formatted alert string if an attack is detected, else None.
+    """
     req = HTTPNormalizer.normalize(pkt)
     if not req:
         return None
 
     path = req.path.lower()
 
-    # Ignore static files
+    # Skip inspection for static assets (images, fonts, etc.)
     if path.endswith(STATIC_EXTENSIONS):
         return None
 
-    # No user input -> No SQLi
+    # SQLi requires input vectors. If no query or body exists, skip
     if "?" not in path and not req.body:
         return None
 
+    # Inspecting both GET (Path) and POST (Body) vectors
     if not is_valid(path) or not is_valid(req.body):
         return (
-            f"method: {req.method}\n"
-            f"path: {req.path}\n"
-            f"body: {req.body}"
+            f"SQL Injection Attempt Detected!\n"
+            f"Method: {req.method}\n"
+            f"Path:   {req.path}\n"
+            f"Body:   {req.body[:200] if req.body else '[No Body Content]'}"
         )
+
+    return None
 
 
 if __name__ == "__main__":
-    from colorama import Fore, init as color_init
-    color_init(autoreset=True)
+    """
+    Standalone module entry point for testing and debugging.
+    """
+    from colorama import init as color_init
     from os import system
+    from scapy.all import sniff
 
+    color_init(autoreset=True)
     system('clear')
-    print("SQL Injection Detection")
     
-    # filter for HTTP traffic (port 80, 8080, 8000) + 12345 for debugging
-    sniff(prn=inspect, store=0, filter="tcp port 80 or tcp port 8080 or tcp port 8000 or tcp port 12345")
+    print("SQL Injection Detection Engine Active...")
+    print("Monitoring ports: 80, 8080, 8000, 12345")
+    
+    sniff(prn=lambda p: print(out) if (out := inspect(p)) else None, 
+          store=0, 
+          filter="tcp port 80 or tcp port 8080 or tcp port 8000 or tcp port 12345")

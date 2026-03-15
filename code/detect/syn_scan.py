@@ -1,79 +1,86 @@
-# Live Detection of an TCP SYN Scan
-from scapy.all import TCP, IP, Packet, sniff
+from scapy.all import TCP, IP, sniff
 from time import time
 
 print("TCP SYN Scan Detection Module Loaded")
 
+# Configuration -
+RELEVANCE_WINDOW = 30  
+THRESHOLD = 100
+CLEANUP_INTERVAL = 60
 
-RELEVANCE = 30 # seconds - half a minute
-THRESHHOLD = 100 # number of ports
-# If more than THRESHHOLD ports are scanned in RELEVANCE seconds - ALERT!
+# Global storage for tracking scanners:
+# Structure: { (src_ip, dst_ip): { "ports": set(port1, port2...), "last_seen": timestamp } }
+scanners = {}
+last_cleanup = time()
 
-class PortPkt:
-    def __init__(self, pkt: Packet):
-        self.port = pkt[TCP].dport
-        self.ip_src = pkt[IP].src
-        self.ip_dst = pkt[IP].dst
-        self._time = time()
-
-    def is_relevant(self):
-        return time() - self._time < RELEVANCE
+def clean_expired_trackers():
+    """
+    Performs memory management by removing tracking entries that have 
+    exceeded the relevance window.
+    """
+    global last_cleanup
+    now = time()
     
-    def __eq__(self, other):
-        if not isinstance(other, PortPkt):
-            return False
-        
-        return self.port == other.port
+    # Only run cleanup based on the defined interval to save CPU cycles
+    if now - last_cleanup < CLEANUP_INTERVAL:
+        return
 
+    for key in list(scanners.keys()):
+        if now - scanners[key]["last_seen"] > RELEVANCE_WINDOW:
+            del scanners[key]
+            
+    last_cleanup = now
 
-class PortList:
-    def __init__(self, ip_src, ip_dst):
-        self._ip_src = ip_src
-        self._ip_dst = ip_dst
-        self.ports = []
-
-    def add_port(self, port_pkt: PortPkt):
-        if port_pkt.ip_src != self._ip_src or port_pkt.ip_dst != self._ip_dst:
-            return False
-        
-        self.ports = [p for p in self.ports if p.is_relevant()]
-
-        if port_pkt in self.ports:
-            return True
-        
-        self.ports.append(port_pkt)
-
-        if len(self.ports) > THRESHHOLD:
-            raise Exception(f"{len(self.ports)} ports initiated in less than {RELEVANCE} seconds")
-        
-        return True
-
-    def __repr__(self):
-        return f"{self._ip_src} -> {self._ip_dst}: {len(self.ports)}"
-
-
-port_lists = []
 def inspect(pkt):
-    # tcp[13] & 2 != 0) and (tcp[13] & 16 == 0)
-    # Flages: SYN set and ACK not set
-    if pkt.haslayer(IP) and pkt.haslayer(TCP):
-        flags = pkt[TCP].flags
-        if flags & 0x02 and not (flags & 0x10):
-            port_pkt = PortPkt(pkt)
-            try:
-                if not any(pl.add_port(port_pkt) for pl in port_lists):
-                    port_lists.append(PortList(pkt[IP].src, pkt[IP].dst))
-                    port_lists[-1].add_port(port_pkt)
-            except Exception as e:
-                return e
+    """
+    Analyzes TCP packets for 'Stealth' SYN scanning patterns.
+    Detects attackers probing multiple ports without completing the handshake.
 
+    :param pkt: The raw network packet captured by the sniffer.
+    :return: A detailed alert string if a scan is confirmed, else None.
+    """
+
+    if not pkt.haslayer(IP) or not pkt.haslayer(TCP):
+        return None
+
+    # Identify SYN packets (0x02) that are NOT part of a SYN-ACK (0x12)
+    flags = pkt[TCP].flags
+    if not (flags & 0x02 and not (flags & 0x10)):
+        return None
+
+    src = pkt[IP].src
+    dst = pkt[IP].dst
+    port = pkt[TCP].dport
+    now = time()
+
+    # Track activity using a composite key (Source IP -> Destination IP)
+    scan_key = (src, dst)
+
+    if scan_key not in scanners:
+        scanners[scan_key] = {"ports": set(), "last_seen": now}
+
+    tracker = scanners[scan_key]
+    
+    # Add unique port to the set
+    tracker["ports"].add(port)
+    tracker["last_seen"] = now
+
+    clean_expired_trackers()
+
+    unique_ports = len(tracker["ports"])
+    if unique_ports > THRESHOLD:
+        # Clear tracker after alerting to prevent continuous spamming for the same event
+        del scanners[scan_key]
+        return (f"{unique_ports} unique ports probed within {RELEVANCE_WINDOW}s")
+
+    return None
 
 if __name__ == "__main__":
-    from colorama import Fore, init as color_init
-    color_init(autoreset=True)
-    from os import system
-    system('clear')
-    print("Starting TCP SYN scan Detection...")
+    """
+    Standalone execution for real-time SYN scan monitoring.
+    """
+    print("Starting TCP Stealth Scan Detection Engine...")
+    print(f"[*] Threshold: {THRESHOLD} ports | Window: {RELEVANCE_WINDOW}s")
 
-    # Flags: SYN set and ACK not set
-    sniff(prn=inspect, store=0, filter="tcp and (tcp[13] & 2 != 0) and (tcp[13] & 16 == 0)")
+    # Only capture TCP packets where SYN is set and ACK is clear
+    sniff(prn=lambda p: print(out) if (out := inspect(p)) else None, store=0, filter="tcp and (tcp[13] & 2 != 0) and (tcp[13] & 16 == 0)")
