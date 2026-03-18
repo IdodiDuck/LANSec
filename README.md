@@ -28,7 +28,6 @@ Detected attackers can be blocked instantly using dynamic firewall rules via **i
 A real-time monitoring dashboard built with **Flask** that displays:
 
 - Live attack alerts
-- Device statistics
 - Network events
 - Historical logs
 
@@ -44,7 +43,6 @@ A real-time monitoring dashboard built with **Flask** that displays:
 - UDP Flood
 - ICMP Flood
 - TCP SYN Scan
-- TCP Connection Scan
 - Ping Sweep
 - SSH Brute Force
 
@@ -74,16 +72,15 @@ LANSec uses a **modular detection pipeline** that separates traffic collection, 
               │
               ▼
            Detectors
-   ├─ Network Attacks
-   ├─ Web Attacks
-   └─ Anomaly Engine
+              ├─ Network Attacks
+              ├─ Web Attacks
+              └─ Anomaly Engine
               │
               ▼
           Logger / Alerts
               │
               ▼
           Prevention
-       (iptables blocking)
               │
               ▼
             Web UI
@@ -294,17 +291,6 @@ The authors are not responsible for misuse of this software.
 
 Developed by:
 
-**Ido**  
-**Tal**
+**Ido Redid & Tal Akav**  
 
 ---
-
-# ⭐ Future Improvements
-
-Possible future improvements include:
-
-- Machine learning based anomaly detection
-- Threat intelligence integration
-- Improved attack correlation
-- Distributed network monitoring
-- Advanced visualization in the web dashboard
