@@ -108,11 +108,6 @@ Features include:
 <p align="center">
   <img src="https://github.com/user-attachments/assets/a46954f5-9126-42c7-b21a-3a0b11827406" width="800"/>
 </p>
-Example:
-
-```
-/screenshots/dashboard.png
-```
 
 ---
 
